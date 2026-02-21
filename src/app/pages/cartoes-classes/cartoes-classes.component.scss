@@ -1,0 +1,198 @@
+/* Estilos para Cartões de Classes
+	 Design limpo, responsivo e acessível.
+*/
+
+:host {
+	display: block;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+	color: #283244;
+}
+
+.cartoes-classes {
+	max-width: 980px;
+	margin: 16px auto;
+	padding: 20px;
+	background: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0 6px 18px rgba(40,50,68,0.08);
+}
+
+.cartoes-classes h2 {
+	margin: 0 0 14px 0;
+	font-size: 20px;
+	color: #122033;
+}
+
+.cartoes-classes label {
+	font-weight: 600;
+	margin-right: 8px;
+}
+
+select#classSelect {
+	min-width: 220px;
+	padding: 8px 10px;
+	border-radius: 8px;
+	border: 1px solid #e3e9ef;
+	background: #fbfdff;
+	color: #122033;
+}
+
+.req-item {
+	margin-top: 14px;
+	padding: 12px;
+	border-radius: 8px;
+	border: 1px solid #eef3f8;
+	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+}
+
+.req-main {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+/* indicador de completude (check) */
+.check {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: #e6fbef; /* fundo esverdeado claro */
+	color: #0b6b33; /* verde escuro para o check */
+	border: 2px solid #19a84a; /* borda verde mais viva */
+	font-weight: 700;
+	box-shadow: 0 4px 10px rgba(25,168,74,0.12);
+	margin-right: 8px;
+	flex: 0 0 auto;
+}
+
+.req-main strong {
+	color: #0b2b4a;
+}
+
+.req-main button {
+	background: #0b74de;
+	color: #fff;
+	border: none;
+	padding: 8px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: 600;
+	box-shadow: 0 6px 12px rgba(11,116,222,0.12);
+}
+
+.req-main button:hover {
+	transform: translateY(-1px);
+}
+
+.req-form {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px dashed #e6eef6;
+}
+
+.req-form p {
+	margin: 0 0 8px 0;
+	color: #334e68;
+}
+
+.req-form label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 0;
+}
+
+.req-form input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+}
+
+.req-form .actions {
+	margin-top: 10px;
+}
+
+.req-form .actions button {
+	background: #18a058;
+	color: #fff;
+	border: none;
+	padding: 8px 14px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: 700;
+}
+
+.req-form .actions button:hover {
+	opacity: 0.95;
+}
+
+small {
+	color: #64748b;
+}
+
+@media (max-width: 640px) {
+	.cartoes-classes {
+		padding: 12px;
+	}
+
+	.req-main {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+}
+
+/* Header / breadcrumb styles */
+.cc-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 12px;
+}
+
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	font-size: 13px;
+	color: #6b7a8a;
+}
+.breadcrumb .crumb {
+	color: #4a6fa3;
+	text-decoration: none;
+}
+.breadcrumb .sep {
+	margin: 0 8px;
+	color: #c9d4df;
+}
+.title-wrap {
+	flex: 1 1 auto;
+}
+.page-title {
+	margin: 0;
+	font-size: 22px;
+	color: #0b2b4a;
+}
+.page-sub {
+	margin: 4px 0 0 0;
+	font-size: 13px;
+	color: #627892;
+}
+.back-btn {
+	background: transparent;
+	border: 1px solid #e3e9ef;
+	padding: 8px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+.back-btn:hover {
+	background: #f6f9fc;
+}
+
+@media (max-width: 640px) {
+	.cc-header { flex-direction: column; align-items: flex-start; }
+	.back-btn { align-self: stretch; }
+}
+

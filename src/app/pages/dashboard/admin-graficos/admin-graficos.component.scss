@@ -1,0 +1,135 @@
+.graficos-admin-container {
+	margin: 0 auto 2.2rem auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.graficos-admin-title {
+	text-align: center;
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin-bottom: 1.5rem;
+	color: #000;
+	letter-spacing: 0.01em;
+	text-shadow: 0 1px 0 #fff, 0 2px 4px #fbc02d33;
+}
+
+.graficos-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	margin-bottom: 1rem;
+	justify-content: center;
+}
+
+@media (max-width: 1024px) {
+	.graficos-grid {
+		flex-direction: column;
+		gap: 1.2rem;
+	}
+}
+
+.grafico-box {
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+	padding: 1.1rem 0.7rem 1.5rem 0.7rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow-x: auto;
+	min-width: 280px;
+	max-width: 500px;
+}
+
+google-chart {
+	display: block;
+	max-width: 100%;
+}
+
+.grafico-title {
+	text-align: center;
+	font-size: 1.15rem;
+	font-weight: 700;
+	margin-bottom: 0.7rem;
+	color: #000;
+	letter-spacing: 0.01em;
+	text-shadow: 0 1px 0 #fff, 0 2px 4px #fbc02d33;
+}
+ngx-charts-bar-vertical {
+	width: 100% !important;
+	min-width: 220px;
+	max-width: 420px;
+	max-height: 260px;
+	min-height: 140px;
+	margin: 0 auto 1.2rem auto;
+	background: transparent;
+	box-shadow: none;
+	border-radius: 0;
+	padding: 0;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+.grafico-lista {
+	width: 100%;
+	margin-top: 1.1rem;
+}
+.grafico-lista ul {
+	list-style: none;
+	padding: 0;
+	margin: 0.2rem 0 0 0;
+}
+.grafico-lista li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.3rem 0.2rem;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 1em;
+	transition: background 0.2s;
+}
+.grafico-lista li:hover {
+	background: #fffde7;
+}
+.grafico-lista li:last-child {
+	border-bottom: none;
+}
+.grafico-lista .nome {
+	font-weight: 500;
+	color: #1976d2;
+}
+.grafico-lista .pontos {
+	font-weight: 700;
+	color: #000;
+	margin-left: 0.5em;
+	text-shadow: 0 1px 0 #fff;
+}
+
+.grafico-legenda {
+	margin-top: 1rem;
+	padding: 0.8rem;
+	background: #f9f9f9;
+	border-radius: 8px;
+	border-left: 4px solid #000;
+}
+
+.legenda-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.4rem 0;
+	font-size: 0.95rem;
+	color: #333;
+}
+
+.legenda-classe {
+	font-weight: 600;
+	color: #1976d2;
+	min-width: 100px;
+}
+
+.legenda-texto {
+	color: #666;
+	font-weight: 500;
+	text-align: right;
+}

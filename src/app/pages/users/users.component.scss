@@ -1,0 +1,379 @@
+.users-page {
+    padding: 16px;
+}
+
+.panel {
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.users-panel .list,
+.desb-panel .list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.card {
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meta .email {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.meta .name {
+    font-size: 13px;
+    color: #666;
+}
+
+.meta-small {
+    font-size: 12px;
+    color: #777;
+}
+
+.edit-form {
+    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+}
+
+.edit-form label {
+    display: block;
+    font-size: 13px;
+}
+
+.edit-form input,
+.edit-form select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.row {
+    display: flex;
+    gap: 8px;
+}
+
+.row label {
+    flex: 1;
+}
+
+.roles-checks {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.role-item {
+    font-size: 13px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.form-actions button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #1976d2;
+    color: #fff
+}
+
+.form-actions button[type="button"] {
+    background: #777
+}
+
+/* Visual polish */
+:root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --primary: #1976d2;
+    /* cor de contraste para textos/ícones sobre o primary */
+    --primary-contrast: #ffffff;
+    --muted: #6b7280;
+    --success: #2e7d32;
+    --danger: #d32f2f;
+}
+
+body {
+    background: var(--bg);
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.users-page {
+    padding: 18px 14px;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.card {
+    background: var(--card);
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+.card .meta {
+    display: block
+}
+
+.card .meta .email {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.card .meta .name {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 2px
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #fff;
+    margin-right: 6px
+}
+
+.role-CONSELHEIRO {
+    background: #8e24aa
+}
+
+.role-INSTRUTOR {
+    background: #ff9800
+}
+
+.role-ADMIN {
+    background: #1976d2
+}
+
+.btn-icon {
+    background: var(--primary);
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary-contrast);
+}
+
+.btn-icon svg {
+    display: block;
+    color: inherit
+}
+
+/* garantir que paths do svg usem a cor atual (currentColor) para manter contraste */
+.btn-icon svg path {
+    fill: currentColor !important
+}
+
+.btn-edit {
+    display: inline-block;
+    background: var(--primary);
+    color: var(--primary-contrast);
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+    border-color: var(--primary);
+}
+
+.meta-small {
+    color: var(--muted);
+    font-size: 12px
+}
+
+.form-actions button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary);
+    color: #000000
+}
+
+.form-actions button[type="button"] {
+    background: #777;
+    color: #fff;
+}
+
+.card {
+    transition: transform .12s ease, box-shadow .12s ease
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08)
+}
+
+/* destaque visual quando o cartão estiver em edição */
+.card.editing {
+    border-left: 4px solid var(--primary);
+    transform: none;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.save-badge {
+    display: inline-block;
+    background: var(--success);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-top: 8px
+}
+
+.save-confirm {
+    display: flex;
+    justify-content: flex-end
+}
+
+.roles-checks .role-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f3f6fb;
+    padding: 6px 8px;
+    border-radius: 8px
+}
+
+.accordion {
+    margin-bottom: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.accordion summary {
+    list-style: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
+.accordion[open] summary {
+    background: linear-gradient(90deg, #ffffff, #f8fafc)
+}
+
+.accordion .count {
+    color: var(--muted);
+    font-weight: 600;
+    margin-left: 8px
+}
+
+.accordion .list {
+    padding: 10px 0 0 0
+}
+
+.small-card {
+    padding: 10px
+}
+
+.card .actions .btn-icon {
+    padding: 6px 8px;
+}
+
+/* mostrar botão de texto em telas pequenas (onde o ícone pode ficar menos visível) */
+@media(max-width:700px) {
+    .btn-icon {
+        display: none
+    }
+
+    .btn-edit {
+        display: inline-block
+    }
+}
+
+/* ================= ACCORDION ================= */
+
+.accordion {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    transition: box-shadow .15s ease;
+}
+
+.accordion:hover {
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Header clicável */
+.accordion-header {
+    cursor: pointer;
+    padding: 12px 14px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+    user-select: none;
+}
+
+/* contador */
+.accordion-header .count {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Lista interna */
+.accordion .list {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    animation: fadeIn .15s ease;
+}
+
+/* animação suave */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}

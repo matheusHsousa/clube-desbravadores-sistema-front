@@ -1,0 +1,74 @@
+<div class="conselheiro-graficos-container">
+  <h2 class="graficos-conselheiro-title">Pontuação Semanal por Desbravador</h2>
+
+  <ng-container *ngIf="loaded; else carregando">
+    <div class="graficos-grid">
+      <div *ngIf="chartData.length" class="grafico-box">
+        <h3 class="grafico-title">Evolução de Pontos</h3>
+        <google-chart
+          [type]="chartType"
+          [data]="chartData"
+          [columns]="chartColumns"
+          [options]="chartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div *ngIf="bestWorstChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Melhor vs Pior</h3>
+        <google-chart
+          [type]="bestWorstChartType"
+          [data]="bestWorstChartData"
+          [columns]="bestWorstChartColumns"
+          [options]="bestWorstChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div *ngIf="ausenciasChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Ausências</h3>
+        <div class="filtro-ausencias-box">
+          <label for="dataInicio">Data Inicial:</label>
+          <input
+            id="dataInicio"
+            type="date"
+            [value]="startDate"
+            (change)="onDateChange($any($event.target).value)"
+            class="data-input">
+        </div>
+        <div class="ausencias-alerta">
+          <span class="alerta-label">3+ ausências seguidas:</span>
+          <span *ngIf="ausenciasSequencia.length" class="alerta-nomes">
+            {{ ausenciasSequencia.join(', ') }}
+          </span>
+          <span *ngIf="!ausenciasSequencia.length" class="alerta-nomes">Nenhum</span>
+        </div>
+        <google-chart
+          [type]="ausenciasChartType"
+          [data]="ausenciasChartData"
+          [columns]="ausenciasChartColumns"
+          [options]="ausenciasChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div *ngIf="!chartData.length && !bestWorstChartData.length && !ausenciasChartData.length" class="grafico-box">
+        <p>Sem dados para exibir.</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #carregando>
+    <div class="graficos-grid">
+      <div class="grafico-box">
+        <p>Carregando gráficos...</p>
+      </div>
+    </div>
+  </ng-template>
+</div>

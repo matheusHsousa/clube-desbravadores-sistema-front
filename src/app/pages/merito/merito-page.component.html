@@ -1,0 +1,26 @@
+<div class="merito-page">
+    <mat-card>
+        <mat-card-content>
+            <mat-card-title>Placar de Mérito — Todos</mat-card-title>
+
+            <div class="merito-chart-wrap">
+                <div class="manual-chart">
+                    <div class="manual-chart-row" *ngFor="let row of chartRows; let i = index">
+                        <div class="rank">
+                            <ng-container *ngIf="i === 0">1</ng-container>
+                            <ng-container *ngIf="i === 1">2</ng-container>
+                            <ng-container *ngIf="i === 2">3</ng-container>
+                            <ng-container *ngIf="i > 2">{{ i + 1 }}</ng-container>
+                        </div>
+                        <div class="label">{{ row.label }}</div>
+                        <div class="bar">
+                            <div class="bar-fill" [style.--target]="row.value + '%'" [style.animationDelay.ms]="row.delay"></div>
+                        </div>
+                        <div class="value" [style.animationDelay.ms]="row.delay">{{ row.value | number:'1.0-2' }}%</div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!loading && (!list || list.length === 0)">Nenhum desbravador encontrado.</div>
+        </mat-card-content>
+    </mat-card>
+</div>

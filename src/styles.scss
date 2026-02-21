@@ -1,1 +1,64 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+    margin: 0;
+}
+
+* {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* add top padding to avoid content being hidden under fixed header */
+main, .content, router-outlet + * {
+  padding-top: 72px;
+}
+
+/* Global animation tokens */
+:root {
+  --ease-quick: cubic-bezier(.2,.9,.3,1);
+  --ease-medium: cubic-bezier(.22,.61,.36,1);
+  --dur-fast: 160ms;
+  --dur-medium: 280ms;
+  --dur-slow: 420ms;
+}
+
+/* Respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Common transitions */
+.transition-all { transition: all var(--dur-medium) var(--ease-medium); }
+.transition-fast { transition: all var(--dur-fast) var(--ease-quick); }
+.shadow-hover { transition: box-shadow var(--dur-medium) var(--ease-medium); }
+
+/* Simple CSS animations for a mobile-app feel */
+.fade-in { animation: fadeIn var(--dur-medium) var(--ease-medium) both; }
+.slide-up { animation: slideUp var(--dur-medium) var(--ease-medium) both; }
+.scale-pop { animation: scalePop var(--dur-fast) var(--ease-quick) both; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scalePop {
+  0% { transform: scale(.96); opacity: 0; }
+  60% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* Utility: ripple-like focus */
+.focus-ring:focus { box-shadow: 0 6px 18px rgba(30,136,229,0.10); outline: none; }
+
+/* Apply subtle movement on actionable elements */
+button, a, .card, .btn { will-change: transform, opacity; }
+

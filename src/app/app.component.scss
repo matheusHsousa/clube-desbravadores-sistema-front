@@ -1,0 +1,68 @@
+.app-loading {
+	position: fixed;
+	inset: 0;
+	background: rgba(244, 245, 247, 0.95);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+}
+
+.loading-card {
+	background: #ffffff;
+	border-radius: 14px;
+	padding: 1.4rem 2rem;
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.loading-card img {
+	width: 80px;
+	height: 80px;
+}
+
+.loading-card p {
+	margin: 0;
+	font-weight: 600;
+	color: #444;
+}
+
+/* container for animated routes */
+.route-container {
+	position: relative;
+	min-height: calc(100vh - 72px);
+}
+
+.top-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 12000;
+	height: 3px;
+}
+
+.global-loading-overlay {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 12010;
+	background: rgba(255,255,255,0.45);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+}
+
+.spinner-card {
+	background: rgba(255,255,255,0.85);
+	border-radius: 12px;
+	padding: 1rem 1.2rem;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

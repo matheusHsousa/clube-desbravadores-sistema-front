@@ -1,0 +1,95 @@
+<div class="cantinho-unidade">
+  <header>
+    <h1>Cantinho da Unidade</h1>
+  </header>
+
+  <section class="panel">
+    <h2>Tabela de Pontos da Unidade</h2>
+    <mat-card>
+      <mat-card-content>
+        <table class="points-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Pontos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of desbravadores">
+              <td>{{ d.name }}</td>
+              <td>{{ pointsMap[d.id] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <section class="panel">
+    <h2>Registrar pontuação</h2>
+
+    <div class="list">
+      <article class="card">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+          <div class="row">
+            <mat-form-field appearance="outline" class="full" *ngIf="desbravadores.length > 0">
+              <mat-label>Desbravador</mat-label>
+              <mat-select formControlName="desbravadorId">
+                <mat-option *ngFor="let d of desbravadores" [value]="d.id || d.uid || d.name">{{ d.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="sunday-picker">
+            <mat-form-field appearance="outline">
+              <mat-label>Selecione um domingo</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="sundayDate" [min]="sundays[0]" [max]="sundays[sundays.length-1]" [matDatepickerFilter]="onlySundays" (dateChange)="onSundayChange($event)">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+
+          <label>Pontuação</label>
+          <mat-card class="criteria-card">
+            <mat-card-content>
+              <div class="criteria-grid">
+                <mat-card class="criterion-card" *ngFor="let crit of [
+                  {key: 'presence', title: 'Presença', opts: presenceOptions},
+                  {key: 'pontualidade', title: 'Pontualidade', opts: pontualidadeOptions},
+                  {key: 'uniforme', title: 'Uniforme (lenço)', opts: uniformeOptions},
+                  {key: 'material', title: 'Material (Bíb./Caderno/Estojo)', opts: materialOptions},
+                  {key: 'classe', title: 'Classe em dia', opts: classeOptions},
+                  {key: 'classeBiblica', title: 'Classe Bíblica', opts: classeBiblicaOptions},
+                  {key: 'espEquipe', title: 'Espírito de Equipe', opts: espEquipeOptions},
+                  {key: 'disciplina', title: 'Disciplina', opts: disciplinaOptions},
+                  {key: 'textoBiblico', title: 'Texto Bíblico', opts: textoBiblicoOptions}
+                ]">
+                  <mat-card-title class="criterion-title">{{ crit.title }}</mat-card-title>
+                  <mat-card-content>
+                    <mat-radio-group [formControlName]="crit.key" class="radio-group">
+                      <mat-radio-button *ngFor="let opt of crit.opts" [value]="opt">{{ opt }}</mat-radio-button>
+                    </mat-radio-group>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="total-row">
+                <div class="total-label">Soma</div>
+                <div class="total-value">{{ total }}</div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <div *ngIf="form.invalid && (form.touched || form.dirty)" class="error">Preencha todos os critérios.</div>
+
+          <div class="form-actions" style="margin-top:12px; display:flex; justify-content:flex-end;">
+            <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || submitting">Enviar</button>
+          </div>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+</div>

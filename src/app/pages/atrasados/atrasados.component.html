@@ -1,0 +1,140 @@
+<div class="atrasados-page">
+
+  <!-- Main Content -->
+  <div class="content">
+
+    <!-- Header -->
+    <header class="page-header" #pageHeader>
+      <div class="header-content">
+        <div>
+          <h1>Marcar Atrasados</h1>
+          <p>Registre todos os usuários e desbravadores que chegaram atrasados</p>
+        </div>
+        <button mat-raised-button color="accent" (click)="goToTextosBiblicos()">
+          <mat-icon>menu_book</mat-icon>
+          Textos Bíblicos
+        </button>
+      </div>
+    </header>
+
+    <!-- Dados Combinados -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Diretoria e Desbravadores ({{ pessoasFiltradas.length }})</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="selection-container">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Filtrar por nome</mat-label>
+            <input matInput [(ngModel)]="filtroNome" (ngModelChange)="aplicarFiltroNome()"
+              placeholder="Digite o nome...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="marcarAtrasados()"
+              [disabled]="totalSelecionados === 0 || saving">
+              {{ saving ? 'Marcando...' : 'Marcar ' + totalSelecionados + ' atrasado(s)' }}
+            </button>
+          </div>
+
+          <mat-selection-list class="selection-list">
+            <mat-list-option *ngFor="let pessoa of pessoasFiltradas" [selected]="isSelecionado(pessoa)" [value]="pessoa"
+              (click)="toggleSelecionado(pessoa); $event.stopPropagation()">
+              <div class="item-row">
+                <span class="item-name">{{ pessoa.nome }}</span>
+                <span class="item-meta">{{ pessoa.detalhe }}</span>
+              </div>
+            </mat-list-option>
+          </mat-selection-list>
+
+          <div *ngIf="pessoasFiltradas.length === 0" class="empty-list">
+            Nenhum registro encontrado.
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Today's List -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Atrasados Hoje</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div *ngIf="atrasadosHoje.length > 0" class="atrasados-list">
+          <mat-list>
+            <mat-list-item *ngFor="let atrasado of atrasadosHoje; let i = index">
+              <div matListItemTitle>
+                <strong>{{ getNomeAtrasado(atrasado) }}</strong>
+              </div>
+              <div matListItemLine>
+                <small>{{ formatarData(atrasado.data) }}</small>
+              </div>
+              <div matListItemLine *ngIf="atrasado.observacao">
+                <small>Observação: {{ atrasado.observacao }}</small>
+              </div>
+              <button mat-icon-button color="warn" matListItemMeta (click)="removerAtrasado(atrasado.id)"
+                matTooltip="Remover atrasado">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+
+        <div *ngIf="atrasadosHoje.length === 0" class="empty-state">
+          <mat-icon>check_circle_outline</mat-icon>
+          <p>Nenhum atrasado marcado hoje!</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Histórico Table -->
+    <mat-card class="section-card" *ngIf="showHistorico">
+      <mat-card-header>
+        <mat-card-title>Histórico de Atrasados</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Data</mat-label>
+          <input matInput [matDatepicker]="picker" [(ngModel)]="filtroData" [matDatepickerFilter]="domingoFilter"
+            (dateChange)="carregarHistorico()" placeholder="Selecione um domingo">
+          <mat-hint>Apenas domingos disponíveis</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <div class="action-buttons">
+          <button mat-stroked-button color="primary" (click)="carregarHistorico()">
+            Recarregar Histórico
+          </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+          <table mat-table [dataSource]="historico" class="historico-table">
+            <!-- Data Column -->
+            <ng-container matColumnDef="data">
+              <th mat-header-cell *matHeaderCellDef>Data/Hora</th>
+              <td mat-cell *matCellDef="let element">{{ formatarData(element.data) }}</td>
+            </ng-container>
+
+            <!-- Nome Column -->
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Nome</th>
+              <td mat-cell *matCellDef="let element">{{ getNomeAtrasado(element) }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <div *ngIf="historico.length === 0" class="empty-table">
+            <p>Nenhum registro encontrado</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

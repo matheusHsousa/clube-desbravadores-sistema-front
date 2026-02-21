@@ -1,0 +1,30 @@
+<header class="header">
+    <div class="header-left">
+        <button mat-icon-button class="back" (click)="goBack()" aria-label="Voltar">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="title">Soldados do Rei</span>
+    </div>
+
+    <div class="header-right">
+        <ng-container *ngIf="currentUser; else loginBtn">
+            <button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-button" aria-label="Usuário">
+                <img *ngIf="currentUser.avatarUrl; else iconFallback" [src]="currentUser.avatarUrl" class="avatar-img" alt="avatar">
+                <ng-template #iconFallback>
+                    <mat-icon>account_circle</mat-icon>
+                </ng-template>
+            </button>
+
+            <mat-menu #userMenu="matMenu">
+                <button mat-menu-item (click)="goToProfile()">Perfil</button>
+                <button mat-menu-item (click)="logout()">Sair</button>
+            </mat-menu>
+        </ng-container>
+
+        <ng-template #loginBtn>
+            <button mat-icon-button aria-label="Entrar" (click)="goToProfile()">
+                <mat-icon>account_circle</mat-icon>
+            </button>
+        </ng-template>
+    </div>
+</header>

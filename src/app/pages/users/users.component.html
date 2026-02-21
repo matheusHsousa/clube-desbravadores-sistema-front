@@ -1,0 +1,180 @@
+<div class="users-page">
+    <header>
+        <h1>Controle de Usuários</h1>
+        <p *ngIf="loading">Carregando dados...</p>
+    </header>
+
+    <!-- ================= USUÁRIOS ================= -->
+    <section class="panel users-panel">
+        <h2>Todos os usuários</h2>
+
+        <div *ngIf="allUsers?.length; else emptyAll" class="list">
+            <article *ngFor="let u of allUsers" class="card" [class.editing]="editingUserId === u.id">
+                <div class="card-row">
+                    <div class="meta">
+                        <div class="email">{{ u.email }}</div>
+                        <div class="name">{{ u.name || '—' }}</div>
+                        <div class="roles">
+                            <span *ngFor="let r of u.roles" class="badge role-{{ r }}">
+                                {{ r }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" class="btn-edit" (click)="toggleEditUser(u)">
+                            Editar
+                        </button>
+                    </div>
+                </div>
+
+                <form *ngIf="editingUserId === u.id" class="edit-form" (ngSubmit)="saveUser(u)">
+                    <label>
+                        Nome
+                        <input id="input-name-{{ u.id }}" [(ngModel)]="userForm.name" name="name_{{ u.id }}" />
+                    </label>
+
+                    <div class="row">
+                        <label>
+                            Unidade
+                            <select [(ngModel)]="userForm.unidade" name="unidade_{{ u.id }}">
+                                <option [ngValue]="null">—</option>
+                                <option *ngFor="let un of unidades" [value]="un">
+                                    {{ un }}
+                                </option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Classe
+                            <select [(ngModel)]="userForm.classe" name="classe_{{ u.id }}">
+                                <option [ngValue]="null">—</option>
+                                <option *ngFor="let cl of classes" [value]="cl">
+                                    {{ cl }}
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="roles-checks">
+                        <label *ngFor="let r of rolesOptions">
+                            <input
+                                type="checkbox"
+                                [checked]="userForm.roles?.includes(r)"
+                                (change)="onRoleChange(r, $event)"
+                                [disabled]="(r === 'INSTRUTOR' && !userForm.classe) || (r === 'CONSELHEIRO' && !userForm.unidade)"
+                                [title]="(r === 'INSTRUTOR' && !userForm.classe) ? 'Defina uma classe antes de marcar Instrutor' : (r === 'CONSELHEIRO' && !userForm.unidade) ? 'Defina uma unidade antes de marcar Conselheiro' : ''"
+                            />
+                            {{ r }}
+                        </label>
+                        <div class="roles-hint">
+                            <small *ngIf="!userForm.classe">Instrutor requer uma classe.</small>
+                            <small *ngIf="!userForm.unidade">Conselheiro requer uma unidade.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Salvar</button>
+                        <button type="button" (click)="toggleEditUser(u)">
+                            Cancelar
+                        </button>
+                    </div>
+
+                    <div class="save-confirm">
+                        <span *ngIf="saveSuccessUserId === u.id">✔ Salvo</span>
+                    </div>
+                </form>
+            </article>
+        </div>
+
+        <ng-template #emptyAll>
+            <p>Nenhum usuário encontrado.</p>
+        </ng-template>
+    </section>
+
+    <section class="panel desb-panel">
+        <h2>Desbravadores por Unidade</h2>
+
+        <div *ngIf="desbravadores.length; else emptyD" class="accordion-list">
+            <div *ngFor="let g of desbravadoresPorUnidade; trackBy: trackByKey" class="accordion">
+                <div class="accordion-header" (click)="g.open = !g.open">
+                    {{ g.key }} <span class="count">({{ g.items.length }})</span>
+                </div>
+
+                <div class="list" *ngIf="g.open">
+                    <app-desbravador-card *ngFor="let d of g.items; trackBy: trackById" [desbravador]="d"
+                        (updated)="onDesbravadorUpdated()">
+                    </app-desbravador-card>
+
+                </div>
+            </div>
+
+        </div>
+
+        <ng-template #emptyD>
+            <p>Nenhum desbravador encontrado.</p>
+        </ng-template>
+    </section>
+
+
+    <section class="panel">
+        <h2>Desbravador por Classe</h2>
+
+        <div *ngIf="desbravadores.length; else emptyClasses" class="accordion-list">
+            <div *ngFor="let g of desbravadoresPorClasse; trackBy: trackByKey" class="accordion">
+                <div class="accordion-header" (click)="g.open = !g.open">
+                    {{ g.key }} <span class="count">({{ g.items.length }})</span>
+                </div>
+
+                <div class="list" *ngIf="g.open">
+                    <app-desbravador-classe-card *ngFor="let d of g.items; trackBy: trackById" [desbravador]="d"
+                    (updated)="onDesbravadorUpdated()">
+                    </app-desbravador-classe-card>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #emptyClasses>
+            <p>Nenhum desbravador encontrado.</p>
+        </ng-template>
+    </section>
+
+    <section class="panel">
+        <h2>Instrutores</h2>
+
+        <div *ngIf="instrutores.length; else emptyI" class="list">
+            <article *ngFor="let i of instrutores" class="card small-card">
+                <div class="card-row">
+                    <div class="meta">
+                        <div class="email">{{ i.email }}</div>
+                        <div class="name">{{ i.name || '—' }}</div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <ng-template #emptyI>
+            <p>Nenhum instrutor encontrado.</p>
+        </ng-template>
+    </section>
+
+    <!-- ================= CONSELHEIROS ================= -->
+    <section class="panel">
+        <h2>Conselheiros</h2>
+
+        <div *ngIf="conselheiros.length; else emptyC" class="list">
+            <article *ngFor="let c of conselheiros" class="card small-card">
+                <div class="card-row">
+                    <div class="meta">
+                        <div class="email">{{ c.email }}</div>
+                        <div class="name">{{ c.name || '—' }}</div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <ng-template #emptyC>
+            <p>Nenhum conselheiro encontrado.</p>
+        </ng-template>
+    </section>
+</div>

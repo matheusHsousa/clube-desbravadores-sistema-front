@@ -1,0 +1,143 @@
+<div class="textos-biblicos-page">
+    <div class="content">
+
+        <header class="page-header">
+            <h1>Textos Bíblicos</h1>
+            <p>Gerenciamento de textos bíblicos por atrasados</p>
+        </header>
+        
+        <!-- Devedores -->
+        <mat-card class="section-card">
+            <mat-card-header>
+                <mat-card-title>Devedores de Textos Bíblicos</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+                <div class="table-container">
+                    <table mat-table [dataSource]="devedores" class="devedores-table">
+                        <!-- Pessoa Column -->
+                        <ng-container matColumnDef="pessoa">
+                            <th mat-header-cell *matHeaderCellDef>Pessoa</th>
+                            <td mat-cell *matCellDef="let element">
+                                {{ element.pessoa?.name || 'Sem nome' }}
+                                <span class="tipo-badge" *ngIf="element.tipo === 'desbravador'">(Desbravador)</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Total Atrasados Column -->
+                        <ng-container matColumnDef="totalAtrasados">
+                            <th mat-header-cell *matHeaderCellDef>Total de Atrasados</th>
+                            <td mat-cell *matCellDef="let element">{{ element.totalAtrasados }}</td>
+                        </ng-container>
+
+                        <!-- Textos Aprovados Column -->
+                        <ng-container matColumnDef="textosAprovados">
+                            <th mat-header-cell *matHeaderCellDef>Textos Aprovados</th>
+                            <td mat-cell *matCellDef="let element">{{ element.textosAprovados }}</td>
+                        </ng-container>
+
+                        <!-- Textos Pendentes Column -->
+                        <ng-container matColumnDef="textosPendentes">
+                            <th mat-header-cell *matHeaderCellDef>Textos Devendo</th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="pendente-badge">{{ element.textosPendentes }}</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Ações Column -->
+                        <ng-container matColumnDef="acoes">
+                            <th mat-header-cell *matHeaderCellDef>Enviar Texto</th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="file" accept="image/*" style="display: none" #fileInput
+                                    (change)="onFileSelected($event, element.atrasadosIds[0])">
+                                <button mat-raised-button color="primary" (click)="fileInput.click()"
+                                    [disabled]="uploading || element.textosPendentes === 0"
+                                    matTooltip="Enviar foto do texto bíblico">
+                                    <mat-icon>camera_alt</mat-icon>
+                                    Foto
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+
+                    <div *ngIf="devedores.length === 0" class="empty-table">
+                        <mat-icon>check_circle_outline</mat-icon>
+                        <p>Nenhum devedor! Todos em dia com os textos.</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Textos Pendentes de Aprovação (apenas para ADMIN) -->
+        <mat-card class="section-card" *ngIf="isAdmin">
+            <mat-card-header>
+                <mat-card-title>Textos Pendentes de Aprovação</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+                <div class="table-container">
+                    <table mat-table [dataSource]="textosPendentes" class="pendentes-table">
+                        <!-- Pessoa Column -->
+                        <ng-container matColumnDef="pessoa">
+                            <th mat-header-cell *matHeaderCellDef>Pessoa</th>
+                            <td mat-cell *matCellDef="let element">
+                                {{ getNomePessoa(element) }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Imagem Column -->
+                        <ng-container matColumnDef="imagem">
+                            <th mat-header-cell *matHeaderCellDef>Imagem</th>
+                            <td mat-cell *matCellDef="let element">
+                                <img [src]="element.imagemUrl" alt="Texto Bíblico" class="thumbnail clickable"
+                                    (click)="openImage(element.imagemUrl)">
+                            </td>
+                        </ng-container>
+
+                        <!-- Data Envio Column -->
+                        <ng-container matColumnDef="dataEnvio">
+                            <th mat-header-cell *matHeaderCellDef>Data de Envio</th>
+                            <td mat-cell *matCellDef="let element">
+                                {{ formatarData(element.dataEnvio) }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Ações Column -->
+                        <ng-container matColumnDef="acoes">
+                            <th mat-header-cell *matHeaderCellDef>Ações</th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button color="primary" (click)="aprovarTexto(element.id)"
+                                    matTooltip="Aprovar">
+                                    <mat-icon>check</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="rejeitarTexto(element.id)"
+                                    matTooltip="Rejeitar">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsPendentes"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsPendentes;"></tr>
+                    </table>
+
+                    <div *ngIf="textosPendentes.length === 0" class="empty-table">
+                        <mat-icon>done_all</mat-icon>
+                        <p>Nenhum texto pendente de aprovação</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+
+<!-- Image preview overlay -->
+<div class="image-overlay" *ngIf="selectedImageUrl" (click)="closeImage()">
+    <button class="close-btn" (click)="closeImage(); $event.stopPropagation()">Fechar</button>
+    <img [src]="selectedImageUrl" alt="Pré-visualização" class="preview" (click)="$event.stopPropagation()">
+    <a class="close-btn" style="right:110px; background:rgba(0,0,0,0.6);" target="_blank"
+        [href]="selectedImageUrl">Abrir em nova aba</a>
+</div>

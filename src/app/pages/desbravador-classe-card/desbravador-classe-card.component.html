@@ -1,0 +1,37 @@
+<article class="card small-card">
+    <div class="card-row">
+        <div class="meta">
+            <div class="name">{{ desbravador.name }}</div>
+            <div class="meta-small">
+                {{ desbravador.unidade }} / {{ desbravador.classe }}
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn-edit" (click)="editing = true">
+                Editar
+            </button>
+        </div>
+    </div>
+
+    <form *ngIf="editing" (ngSubmit)="save()" class="edit-form">
+        <label>
+            Nome
+            <input [(ngModel)]="form.name" name="name" required />
+        </label>
+
+        <div class="row">
+            <label>
+                Classe
+                <select [(ngModel)]="form.classe" name="classe">
+                    <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Salvar</button>
+            <button type="button" (click)="cancel()">Cancelar</button>
+        </div>
+    </form>
+</article>

@@ -1,0 +1,362 @@
+.user-profile {
+  min-height: 100vh;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+
+  .loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 400px;
+    justify-content: space-around;
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    p {
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+
+  .profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    .back-btn {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-2px);
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .profile-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+
+    mat-card-content {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      @media (max-width: 600px) {
+        padding: 1.5rem;
+        gap: 1.2rem;
+      }
+    }
+  }
+
+  .avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .avatar-placeholder {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 48px;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .avatar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  .form-field {
+    width: 100%;
+
+    ::ng-deep {
+      .mat-form-field-outline {
+        color: rgba(0, 0, 0, 0.12) !important;
+      }
+
+      .mat-form-field-focus-overlay {
+        background: rgba(102, 126, 234, 0.04);
+      }
+
+      .mat-focused .mat-form-field-outline-thick {
+        color: #667eea !important;
+      }
+
+      .mat-icon {
+        color: #999;
+
+        &.changed-icon {
+          color: #fbc02d;
+          animation: pulse 0.6s ease-in-out;
+        }
+      }
+
+      .mat-form-field-label {
+        color: #666;
+      }
+
+      .mat-focused .mat-form-field-label {
+        color: #667eea !important;
+      }
+
+      input:disabled {
+        color: #999;
+      }
+
+      .mat-hint {
+        font-size: 12px;
+        color: #999;
+      }
+    }
+  }
+
+  .roles-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .roles-display {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+
+      .role-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+        cursor: default;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+      }
+    }
+
+    mat-hint {
+      display: block;
+      font-size: 12px;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+
+      &:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      &:not(:disabled):active {
+        transform: translateY(0);
+      }
+
+      .spinner-icon {
+        animation: spin 0.8s linear infinite;
+      }
+    }
+
+    .btn-cancel {
+      border: 1px solid #e0e0e0;
+      color: #666;
+      background: white;
+
+      &:hover {
+        background: #f5f5f5;
+        border-color: #d0d0d0;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .profile-header {
+      gap: 0.75rem;
+
+      h1 {
+        font-size: 1.4rem;
+      }
+    }
+
+    .form-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+
+    .profile-header {
+      gap: 0.5rem;
+
+      h1 {
+        font-size: 1.2rem;
+      }
+
+      .back-btn {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    .profile-card {
+      border-radius: 8px;
+
+      mat-card-content {
+        padding: 1rem;
+        gap: 1rem;
+      }
+    }
+
+    .form-actions {
+      button {
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+
+        span {
+          display: none;
+
+          @media (min-width: 320px) {
+            display: inline;
+          }
+        }
+
+        &.mat-icon-button {
+          span {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

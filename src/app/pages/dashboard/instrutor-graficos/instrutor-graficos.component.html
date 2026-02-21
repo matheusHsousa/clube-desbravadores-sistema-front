@@ -1,0 +1,58 @@
+<div class="instrutor-graficos-container">
+	<h2 class="graficos-instrutor-title">Graficos do Instrutor</h2>
+
+	<ng-container *ngIf="loaded; else carregando">
+		<div class="graficos-grid">
+			<div *ngIf="progressoChartData.length" class="grafico-box">
+				<h3 class="grafico-title">Progresso da Classe</h3>
+				<google-chart
+					[type]="progressoChartType"
+					[data]="progressoChartData"
+					[columns]="progressoChartColumns"
+					[options]="progressoChartOptions"
+					[width]="chartWidth"
+					[height]="chartHeight"
+					[dynamicResize]="true">
+				</google-chart>
+			</div>
+
+			<div *ngIf="itensChartData.length" class="grafico-box">
+				<h3 class="grafico-title">Itens Concluidos por Desbravador</h3>
+				<google-chart
+					[type]="itensChartType"
+					[data]="itensChartData"
+					[columns]="itensChartColumns"
+					[options]="itensChartOptions"
+					[width]="chartWidth"
+					[height]="chartHeight"
+					[dynamicResize]="true">
+				</google-chart>
+			</div>
+
+			<div *ngIf="percentualChartData.length" class="grafico-box">
+				<h3 class="grafico-title">Percentual por Desbravador</h3>
+				<google-chart
+					[type]="percentualChartType"
+					[data]="percentualChartData"
+					[columns]="percentualChartColumns"
+					[options]="percentualChartOptions"
+					[width]="chartWidth"
+					[height]="chartHeight"
+					[dynamicResize]="true">
+				</google-chart>
+			</div>
+
+			<div *ngIf="!progressoChartData.length && !itensChartData.length && !percentualChartData.length" class="grafico-box">
+				<p>Sem dados para exibir.</p>
+			</div>
+		</div>
+	</ng-container>
+
+	<ng-template #carregando>
+		<div class="graficos-grid">
+			<div class="grafico-box">
+				<p>Carregando graficos...</p>
+			</div>
+		</div>
+	</ng-template>
+</div>

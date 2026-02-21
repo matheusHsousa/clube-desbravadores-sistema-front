@@ -1,0 +1,103 @@
+.small-card {
+    padding: 12px;
+}
+
+.small-card.editing {
+    border-left: 4px solid var(--primary);
+}
+
+.small-card .card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.small-card .meta .name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.small-card .meta .meta-small {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.small-card .btn-edit {
+    background: var(--primary);
+    color: var(--primary-contrast);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.small-card .edit-form {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    display: grid;
+    gap: 10px;
+}
+
+
+.small-card .edit-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.small-card .edit-form input,
+.small-card .edit-form select {
+    appearance: none;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+/* placeholder mais suave */
+.small-card .edit-form input::placeholder {
+    color: #9ca3af;
+}
+
+/* hover */
+.small-card .edit-form input:hover,
+.small-card .edit-form select:hover {
+    background: #ffffff;
+}
+
+/* focus */
+.small-card .edit-form input:focus,
+.small-card .edit-form select:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.14);
+}
+
+/* select com seta custom */
+.small-card .edit-form select {
+    background-image:
+        linear-gradient(45deg, transparent 50%, #6b7280 50%),
+        linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position:
+        calc(100% - 16px) 55%,
+        calc(100% - 11px) 55%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 34px;
+}
+
+/* disabled (se usar depois) */
+.small-card .edit-form input:disabled,
+.small-card .edit-form select:disabled {
+    background: #f1f5f9;
+    color: #9ca3af;
+    cursor: not-allowed;
+}

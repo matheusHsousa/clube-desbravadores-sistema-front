@@ -1,0 +1,107 @@
+/* ===== Reset visual ===== */
+.login-wrapper {
+  min-height: 100vh;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Card ===== */
+.login-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 380px;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+
+  text-align: center;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+
+  animation: enter 0.4s ease-out;
+}
+
+/* ===== Animação discreta ===== */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Logo ===== */
+.logo {
+  width: 300px;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Texto ===== */
+h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* ===== Botão ===== */
+.login-btn {
+  width: 100%;
+  height: 46px;
+
+  background: #ffffff;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+
+  .icon{
+    max-width: 10%;
+  }
+}
+
+.login-btn:hover {
+  background: #a31217;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Mobile full ===== */
+@media (max-width: 480px) {
+  .login-card {
+    box-shadow: none;
+    background: transparent;
+    color: #fff;
+  }
+
+  h1 {
+    color: #fff;
+  }
+
+  .subtitle {
+    color: #bbb;
+  }
+}

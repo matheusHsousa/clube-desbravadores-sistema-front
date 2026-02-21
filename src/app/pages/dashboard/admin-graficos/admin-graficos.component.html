@@ -1,0 +1,68 @@
+<!-- ...existing code... -->
+<div class="graficos-admin-container">
+  <h2 class="graficos-admin-title">Gráficos Administrativos</h2>
+
+  <ng-container *ngIf="loaded; else carregando">
+    <div class="graficos-grid">
+      <div *ngIf="lineChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Soma dos Pontos por Unidade</h3>
+
+        <google-chart
+          [type]="lineChartType"
+          [data]="lineChartData"
+          [columns]="lineChartColumns"
+          [options]="lineChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div *ngIf="topChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Top 3 Desbravadores</h3>
+
+        <google-chart
+          [type]="topChartType"
+          [data]="topChartData"
+          [columns]="topChartColumns"
+          [options]="topChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div *ngIf="classeChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Progresso Médio por Classe (%)</h3>
+
+        <google-chart
+          [type]="classeChartType"
+          [data]="classeChartData"
+          [columns]="classeChartColumns"
+          [options]="classeChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
+      <div class="grafico-legenda" style="min-width: 280px; height: 302px;">
+          <div *ngFor="let item of classeChartLegenda" class="legenda-item">
+            <span class="legenda-classe">{{ item.classe }}:</span>
+            <span class="legenda-texto">{{ item.legenda }}</span>
+          </div>
+        </div>
+    </div>
+
+    <div *ngIf="!lineChartData.length && !topChartData.length && !classeChartData.length" class="grafico-box">
+      <p>Sem dados para exibir.</p>
+    </div>
+  </ng-container>
+
+  <ng-template #carregando>
+    <div class="grafico-box">
+      <p>Carregando gráfico...</p>
+    </div>
+  </ng-template>
+</div>
+<!-- ...existing code... -->

@@ -1,0 +1,117 @@
+<div class="dashboard">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <span class="title">Soldados do Rei</span>
+    </div>
+
+    <div class="header-actions">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-btn" aria-label="Usuário">
+        <img *ngIf="currentUser?.avatarUrl; else dashIcon" [src]="currentUser.avatarUrl" class="avatar-img" alt="avatar">
+        <ng-template #dashIcon>
+          <mat-icon>account_circle</mat-icon>
+        </ng-template>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="goToProfile()">Perfil</button>
+        <button mat-menu-item (click)="logout()">Sair</button>
+      </mat-menu>
+    </div>
+  </header>
+
+
+
+  <!-- Conteúdo -->
+  <main class="content">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Bem-vindo ao sistema do clube</p>
+
+    <div class="cards">
+      <!-- Ordem por importância: Cadastro, Classes, Unidades, Placar, Atrasados, Textos Bíblicos, Usuários -->
+
+      <!-- Cadastro de Desbravadores (Admin + Secretaria) -->
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToCadastroDesbravadores()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>person_add</mat-icon></div>
+        <div>
+          <h2>Cadastro Desbravadores</h2>
+          <p>Cadastrar desbravadores e atribuir unidades</p>
+        </div>
+      </div>
+
+      <!-- Classes (Instrutor) -->
+      <div class="card" *ngIf="hasRole('INSTRUTOR')" (click)="goToClasses()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>groups</mat-icon></div>
+        <div>
+          <h2>Classes</h2>
+          <p>Gerencie as classes dos desbravadores</p>
+        </div>
+      </div>
+
+      <!-- Unidades (Conselheiro) -->
+      <div class="card" *ngIf="hasRole('CONSELHEIRO')" (click)="goToUnidades()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>flag</mat-icon></div>
+        <div>
+          <h2>Unidades</h2>
+          <p>Organização das unidades</p>
+        </div>
+      </div>
+
+      <!-- Placar de Mérito (Admin) -->
+      <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToMerito()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>leaderboard</mat-icon></div>
+        <div>
+          <h2>Placar de Mérito</h2>
+          <p>Ver ranking completo de mérito por classe e pontos</p>
+        </div>
+      </div>
+
+      <!-- Atrasados (Admin) -->
+      <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToAtrasados()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>schedule</mat-icon></div>
+        <div>
+          <h2>Atrasados</h2>
+          <p>Marcar desbravadores atrasados do dia</p>
+        </div>
+      </div>
+
+      <!-- Textos Bíblicos (Admin + Conselheiro) -->
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToTextosBiblicos()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>menu_book</mat-icon></div>
+        <div>
+          <h2>Textos Bíblicos</h2>
+          <p>Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)</p>
+        </div>
+      </div>
+
+      <!-- Usuários (Admin + Secretaria) -->
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToUsers()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>people</mat-icon></div>
+        <div>
+          <h2>Usuários</h2>
+          <p>Controle de acesso</p>
+        </div>
+      </div>
+    </div>
+  
+    <div style="display: flex; justify-content: center; margin-top: 2rem; flex-direction: column; align-items: center;">
+         <section class="graficos-section">
+        <div *ngIf="showTabs" class="tabs">
+          <button *ngFor="let tab of availableTabs" type="button" class="tab" [class.active]="selectedTab === tab.key"
+            (click)="selectTab(tab.key)">
+            {{ tab.label }}
+          </button>
+        </div>
+
+      </section>
+      <div class="tab-panels">
+        <app-admin-graficos *ngIf="selectedTab === 'admin'"></app-admin-graficos>
+        <app-instrutor-graficos *ngIf="selectedTab === 'instrutor'"></app-instrutor-graficos>
+        <app-conselheiro-graficos *ngIf="selectedTab === 'conselheiro'"></app-conselheiro-graficos>
+      </div>
+    </div>
+  
+  </main>
+
+</div>

@@ -1,0 +1,124 @@
+.cantinho-unidade {
+    max-width: 980px;
+    margin: 24px auto;
+    padding: 56px 20px 20px 20px !important;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+    h2 {
+        margin-bottom: 12px;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .sunday-picker {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+
+        button[mat-button] {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 6px;
+        }
+
+    }
+
+    .criteria-card {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    .criteria-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .criterion-card {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 90px;
+        justify-content: space-between;
+    }
+
+    .criterion-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    mat-radio-button {
+        margin-right: 6px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 6px;
+    }
+
+    .total-label {
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .total-value {
+        background: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        min-width: 56px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .error {
+        color: #b00020;
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    .success {
+        color: #0a8a0a;
+        margin-top: 12px;
+    }
+
+    @media (max-width: 900px) {
+        .criteria-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        max-width: 96%;
+        .criteria-grid {
+            grid-template-columns: 1fr;
+        }
+        .sunday-picker {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .sunday-picker button[mat-button] {
+            width: 100%;
+        }
+    }
+}

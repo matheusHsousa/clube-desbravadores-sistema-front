@@ -1,0 +1,113 @@
+<div class="user-profile">
+  <!-- Profile Content -->
+  <div *ngIf="!loading && currentUser" class="profile-content">
+    <!-- Header -->
+    <div class="profile-header">
+      <button mat-icon-button class="back-btn" (click)="goBack()" aria-label="Voltar">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Meu Perfil</h1>
+    </div>
+
+    <!-- Profile Card -->
+    <mat-card class="profile-card">
+      <mat-card-content>
+        <!-- Avatar -->
+        <div class="avatar-section">
+          <img *ngIf="currentUser?.avatarUrl; else noAvatar" [src]="currentUser.avatarUrl" alt="Avatar do usuário" class="avatar-preview">
+          <ng-template #noAvatar>
+            <div class="avatar-placeholder" aria-hidden="true">{{ currentUser?.name?.charAt(0) || 'U' }}</div>
+          </ng-template>
+
+          <div class="avatar-actions">
+            <input #avatarInput type="file" accept="image/*" id="avatarInput" (change)="onAvatarSelected($event)" hidden>
+            <button mat-stroked-button color="primary" (click)="avatarInput.click()">Alterar foto</button>
+            <button mat-stroked-button color="warn" *ngIf="currentUser?.avatarUrl" (click)="removeAvatar()">Remover foto</button>
+          </div>
+        </div>
+
+        <!-- Email (Read-only) -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input matInput [value]="currentUser.email" disabled aria-readonly="true">
+          <mat-icon matSuffix>lock</mat-icon>
+          <mat-hint>Vinculado ao Firebase</mat-hint>
+        </mat-form-field>
+
+        <!-- Name (Editable) -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nome</mat-label>
+          <input
+            matInput
+            [(ngModel)]="formData.name"
+            (change)="onInputChange()"
+            placeholder="Digite seu nome"
+            aria-label="Nome"
+          >
+          <mat-icon matSuffix *ngIf="formData.name !== currentUser.name" class="changed-icon">edit</mat-icon>
+        </mat-form-field>
+
+        <!-- Roles -->
+        <div class="roles-section">
+          <label>Papéis</label>
+          <div class="roles-display">
+            <span
+              *ngFor="let role of currentUser.roles"
+              class="role-badge"
+            >
+              {{ role }}
+            </span>
+          </div>
+          <mat-hint>Gerenciados pelo administrador</mat-hint>
+        </div>
+
+        <!-- Unidade (Read-only) -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Unidade</mat-label>
+          <input
+            matInput
+            [value]="currentUser.unidade || 'Não definida'"
+            disabled
+          >
+          <mat-icon matSuffix>info</mat-icon>
+          <mat-hint>Não pode ser alterada pelo usuário</mat-hint>
+        </mat-form-field>
+
+        <!-- Classe (Read-only) -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Classe</mat-label>
+          <input
+            matInput
+            [value]="currentUser.classe || 'Não definida'"
+            disabled
+          >
+          <mat-icon matSuffix>info</mat-icon>
+          <mat-hint>Não pode ser alterada pelo usuário</mat-hint>
+        </mat-form-field>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="saveProfile()"
+            [disabled]="!canEdit()"
+            class="btn-save"
+          >
+            <mat-icon *ngIf="!saving">save</mat-icon>
+            <mat-icon *ngIf="saving" class="spinner-icon">autorenew</mat-icon>
+            <span>{{ saving ? 'Salvando...' : 'Salvar Alterações' }}</span>
+          </button>
+          <button
+            mat-stroked-button
+            (click)="goBack()"
+            class="btn-cancel"
+          >
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

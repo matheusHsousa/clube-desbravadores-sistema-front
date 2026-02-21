@@ -1,0 +1,76 @@
+<div class="cadastro-desbravadores">
+  <div class="cadastro-card">
+    <h2>Cadastro de Desbravadores</h2>
+    <div class="card-content">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="cadastro-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data de Nascimento</mat-label>
+            <input matInput type="date" formControlName="birthDate" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Unidade</mat-label>
+            <mat-select formControlName="unidade">
+              <mat-option *ngFor="let u of unidades" [value]="u">{{ u }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Classe</mat-label>
+            <mat-select formControlName="classe">
+              <mat-option *ngFor="let c of classes" [value]="c">{{ c }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="actions-row">
+          <button mat-stroked-button type="button" class="secondary-btn" (click)="form.reset()">Limpar</button>
+          <button mat-flat-button color="primary" type="submit" class="primary-btn" [disabled]="form.invalid">Cadastrar</button>
+        </div>
+      </form>
+
+      <h3 class="section-title">Desbravadores cadastrados</h3>
+      <div class="desb-toolbar">
+        <input class="search-input" placeholder="Buscar por nome" type="search" [value]="filterName" (input)="setFilter($any($event.target).value)" />
+        <button *ngIf="filterName" type="button" class="btn btn--plain" (click)="setFilter('')">Limpar</button>
+      </div>
+      <div *ngIf="loading">Carregando...</div>
+      <ul *ngIf="!loading" class="desb-list">
+        <li *ngFor="let d of filteredDesbravadores" class="desb-item">
+          <div class="avatar">{{ initials(d.name) }}</div>
+
+          <div class="desb-info">
+            <div *ngIf="!d._editing">
+              <div class="desb-name">{{ d.name }}</div>
+              <div class="desb-meta muted">{{ d.unidade || '—' }} — {{ d.classe || '—' }}</div>
+            </div>
+
+            <div *ngIf="d._editing" class="edit-inline">
+              <input type="text" [value]="d._editCopy.name" (input)="updateEdit(d,'name',$any($event.target).value)" />
+              <input type="date" [value]="d._editCopy.birthDate" (input)="updateEdit(d,'birthDate',$any($event.target).value)" />
+              <select [value]="d._editCopy.unidade" (change)="updateEdit(d,'unidade',$any($event.target).value)">
+                <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
+              </select>
+              <select [value]="d._editCopy.classe" (change)="updateEdit(d,'classe',$any($event.target).value)">
+                <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="desb-actions">
+            <button *ngIf="!d._editing" type="button" class="btn btn--plain" (click)="toggleEdit(d)">Editar</button>
+            <button *ngIf="!d._editing" type="button" class="btn btn--danger" (click)="remove(d)">Remover</button>
+            <button *ngIf="d._editing" type="button" class="btn btn--primary" (click)="save(d)">Salvar</button>
+            <button *ngIf="d._editing" type="button" class="btn btn--secondary" (click)="cancelEdit(d)">Cancelar</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
