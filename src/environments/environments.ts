@@ -14,5 +14,5 @@ export const environment = {
     measurementId: "G-7L4EKV9FSY"
   }
   ,
-  apiBase: 'https://backend-sistema-clube-production.up.railway.app/'
+  apiBase: 'https://backend-sistema-clube-production.up.railway.app'
 }

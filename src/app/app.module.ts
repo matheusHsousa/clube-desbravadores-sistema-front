@@ -1,4 +1,4 @@
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { NgModule, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { registerLocaleData } from '@angular/common';
@@ -35,6 +35,7 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { environment } from 'src/environments/environments';
+import { RuntimeConfigService } from './core/runtime-config.service';
 // import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CantinhoUnidadeComponent } from './pages/cantinho-unidade/cantinho-unidade.component';
@@ -113,6 +114,7 @@ registerLocaleData(localePt, 'pt-BR');
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }
+    ,{ provide: APP_INITIALIZER, useFactory: (rc: RuntimeConfigService) => () => rc.load(), deps: [RuntimeConfigService], multi: true }
   ],
   bootstrap: [AppComponent]
 })
