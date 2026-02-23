@@ -106,7 +106,6 @@ export class TextosBiblicosComponent implements OnInit {
     this.uploading = true;
 
     try {
-      // Enviar arquivo para o backend, que faz o upload ao Supabase e retorna a URL assinada
       const form = new FormData();
       form.append('file', file);
       form.append('atrasadoId', String(atrasadoId));

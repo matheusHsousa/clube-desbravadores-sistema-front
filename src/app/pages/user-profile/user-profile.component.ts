@@ -131,8 +131,6 @@ export class UserProfileComponent implements OnInit {
       const ext = 'jpg';
       const filePath = `avatars/${this.currentUser?.id || 'anon'}/${timestamp}_${safeName}.${ext}`;
 
-
-      // Envia para o backend que usa SUPABASE_SERVICE_ROLE_KEY
       const form = new FormData();
       form.append('avatar', compressedBlob, `${timestamp}_${safeName}.jpg`);
       form.append('userId', String(this.currentUser?.id ?? 'anon'));
