@@ -30,11 +30,6 @@ import { AppComponent } from './app.component';
 
 import { AppRoutingModule } from './app-routing.module';
 
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideStorage, getStorage } from '@angular/fire/storage';
-import { environment } from 'src/environments/environments';
 import { RuntimeConfigService } from './core/runtime-config.service';
 // import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -64,14 +59,7 @@ import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/c
 
 registerLocaleData(localePt, 'pt-BR');
 
-// Inicializa providers do Firebase apenas se existir configuração no environment.
-const firebaseConfig = (environment as any).firebase;
-const firebaseProviders = firebaseConfig ? [
-  provideFirebaseApp(() => initializeApp(firebaseConfig)),
-  provideAuth(() => getAuth()),
-  provideFirestore(() => getFirestore()),
-  provideStorage(() => getStorage()),
-] : [];
+
 
 @NgModule({
   declarations: [
@@ -111,7 +99,6 @@ const firebaseProviders = firebaseConfig ? [
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    ...firebaseProviders,
     GoogleChartsModule
   ],
   providers: [

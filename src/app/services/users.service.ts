@@ -3,14 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environments';
-import { Auth } from '@angular/fire/auth';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private base = `${environment.apiBase}/users`;
   private desbBase = `${environment.apiBase}/desbravadores`;
 
-  constructor(private http: HttpClient, private auth: Auth) {}
+  constructor(private http: HttpClient) {}
 
   getAllUsers(): Observable<any[]> {
     // O interceptor global já anexa o token no header Authorization.
