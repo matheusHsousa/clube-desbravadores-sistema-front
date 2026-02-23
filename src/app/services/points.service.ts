@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class PointsService {
-  private base = 'http://localhost:3000/points';
+  private base = `${environment.apiBase}/points`;
 
   constructor(private http: HttpClient) {}
 

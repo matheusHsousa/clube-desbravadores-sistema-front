@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class TextosBiblicosService {
-  private base = 'http://localhost:3000/textos-biblicos';
+  private base = `${environment.apiBase}/textos-biblicos`;
 
   constructor(private http: HttpClient) {}
 

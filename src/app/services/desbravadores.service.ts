@@ -3,10 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
+import { environment } from 'src/environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class DesbravadoresService {
-  private base = 'http://localhost:3000/desbravadores';
+  private base = `${environment.apiBase}/desbravadores`;
 
   constructor(private http: HttpClient, private auth: AuthService) { }
 

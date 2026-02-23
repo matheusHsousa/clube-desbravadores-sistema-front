@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class AtrasadosService {
-  private base = 'http://localhost:3000/atrasados';
+  private base = `${environment.apiBase}/atrasados`;
 
   constructor(private http: HttpClient) {}
 

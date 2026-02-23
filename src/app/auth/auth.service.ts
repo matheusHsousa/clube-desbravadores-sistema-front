@@ -3,6 +3,7 @@ import { Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, User } f
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, BehaviorSubject, Observable } from 'rxjs';
+import { environment } from 'src/environments/environments';
 
 
 @Injectable({ providedIn: 'root' })
@@ -29,9 +30,10 @@ export class AuthService {
           try {
             this.isAwaitingBackend = true;
             const token = await user.getIdToken();
+            const base = (environment.apiBase || '').replace(/\/+$/, '');
             const backendUser = await firstValueFrom(
               this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
-                'http://localhost:3000/auth/login',
+                `${base}/auth/login`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
               )
@@ -66,9 +68,10 @@ export class AuthService {
 
       this.isAwaitingBackend = true;
 
+      const base = (environment.apiBase || '').replace(/\/+$/, '');
       const user = await firstValueFrom(
         this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
-          'http://localhost:3000/auth/login',
+          `${base}/auth/login`,
           {}, // body vazio
           { headers: { Authorization: `Bearer ${token}` } }
         )

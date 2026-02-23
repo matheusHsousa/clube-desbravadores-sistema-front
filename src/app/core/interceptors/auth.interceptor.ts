@@ -3,13 +3,14 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/c
 import { Observable, from } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { Auth, authState } from '@angular/fire/auth';
+import { environment } from 'src/environments/environments';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private auth: Auth) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const shouldAttach = req.url.startsWith('http://localhost:3000');
+    const shouldAttach = req.url.startsWith(environment.apiBase);
     if (!shouldAttach) return next.handle(req);
 
     return authState(this.auth).pipe(
