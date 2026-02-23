@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -13,16 +13,19 @@ export class AuthService {
   public currentUser$: Observable<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string } | null> = this.currentUserSubject.asObservable();
 
   constructor(
-    private auth: Auth,
+    @Optional() private auth: Auth | null,
     private router: Router,
     private http: HttpClient
   ) {
-    console.log('🔥 Auth instance:', this.auth);
-    this.listenAuth();
+    console.log('🔥 Auth instance:', this.auth ?? 'NO-FIREBASE-AUTH');
+    if (this.auth) this.listenAuth();
   }
 
   private listenAuth(): void {
-    onAuthStateChanged(this.auth, async (user: User | null) => {
+    const auth = this.auth;
+    if (!auth) return;
+
+    onAuthStateChanged(auth, async (user: User | null) => {
       if (user) {
         console.log('🔥 USUÁRIO LOGADO:', user);
         // Se ainda não temos o usuário do backend, busca-o
@@ -58,10 +61,16 @@ export class AuthService {
   }
 
   async loginGoogle() {
+    if (!this.auth) {
+      console.error('Firebase Auth não está configurado no frontend.');
+      throw new Error('Firebase Auth não disponível');
+    }
+
+    const auth = this.auth;
     const provider = new GoogleAuthProvider();
 
     try {
-      const credential = await signInWithPopup(this.auth, provider);
+      const credential = await signInWithPopup(auth, provider);
 
       const token = await credential.user.getIdToken();
 
@@ -88,10 +97,18 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    return this.auth.signOut().then(() => {
-      this.currentUserSubject.next(null);
-      this.router.navigate(['/login']);
-    });
+    if (this.auth) {
+      const auth = this.auth;
+      return auth.signOut().then(() => {
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
+      });
+    }
+
+    // Fallback quando Auth não estiver presente
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
+    return Promise.resolve();
   }
   
   hasRole(role: string): boolean {

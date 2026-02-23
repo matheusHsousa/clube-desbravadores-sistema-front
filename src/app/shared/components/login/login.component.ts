@@ -22,8 +22,8 @@ export class LoginComponent {
       this.loading = true;
       this.error = '';
 
-      await this.authService.loginGoogle();
-      this.router.navigate(['/dashboard']);
+      // Inicia fluxo OAuth server-side — backend redirecionará para o provedor e depois retornará ao frontend
+      window.location.href = `${(window as any)['__env']?.apiBase || '' || ''}${'/auth/google?redirect=' + encodeURIComponent(window.location.origin)}`;
 
     } catch (err) {
       this.error = 'Erro ao fazer login com Google';
