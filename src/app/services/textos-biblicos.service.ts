@@ -42,6 +42,11 @@ export class TextosBiblicosService {
     });
   }
 
+  uploadTexto(form: FormData): Observable<any> {
+    // Envia multipart/form-data para o backend, que retorna { url }
+    return this.http.post(`${environment.apiBase}/upload/texto`, form);
+  }
+
   aprovarTexto(textoId: number): Observable<any> {
     return this.http.post(`${this.base}/aprovar/${textoId}`, {});
   }

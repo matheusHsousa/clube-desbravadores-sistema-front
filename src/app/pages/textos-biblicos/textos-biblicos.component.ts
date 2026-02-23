@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { TextosBiblicosService } from 'src/app/services/textos-biblicos.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { createClient } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environments';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-textos-biblicos',
@@ -17,13 +17,7 @@ export class TextosBiblicosComponent implements OnInit {
   uploading = false;
   displayedColumns: string[] = ['pessoa', 'totalAtrasados', 'textosAprovados', 'textosPendentes', 'acoes'];
   displayedColumnsPendentes: string[] = ['pessoa', 'imagem', 'dataEnvio', 'acoes'];
-  // Desativa refresh automático de token para evitar uso do Navigator Lock (problemas em alguns navegadores)
-  private supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
+  // Uploads agora são feitos pelo backend (/upload/texto)
   selectedImageUrl: string | null = null;
   isAdmin = false;
   isConselheiro = false;
@@ -112,56 +106,28 @@ export class TextosBiblicosComponent implements OnInit {
     this.uploading = true;
 
     try {
-      // Upload para Supabase Storage
-      const timestamp = Date.now();
-      const safeName = file.name
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9._-]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-        .toLowerCase();
-      const filePath = `${timestamp}_${safeName}`;
+      // Enviar arquivo para o backend, que faz o upload ao Supabase e retorna a URL assinada
+      const form = new FormData();
+      form.append('file', file);
+      form.append('atrasadoId', String(atrasadoId));
 
-      const { error: uploadError } = await this.supabase
-        .storage
-        .from('textos-biblicos')
-        .upload(filePath, file, {
-          contentType: file.type,
-          upsert: false
-        });
+      try {
+        const resp: any = await firstValueFrom(this.textosBiblicosService.uploadTexto(form));
+        const downloadURL = resp?.url;
+        if (!downloadURL) throw new Error('Upload retornou sem URL');
 
-      if (uploadError) {
-        throw uploadError;
+        await firstValueFrom(this.textosBiblicosService.enviarTexto(atrasadoId, downloadURL));
+
+        this.uploading = false;
+        event.target.value = ''; // Limpar input
+        this.snackBar.open('Texto enviado com sucesso! Aguarde aprovação.', 'Fechar', { duration: 3000 });
+        this.loadAll();
+      } catch (err) {
+        this.uploading = false;
+        event.target.value = ''; // Limpar input
+        this.snackBar.open('Erro ao enviar texto', 'Fechar', { duration: 3000 });
+        console.error('Upload error (via backend):', err);
       }
-
-      // Se o bucket for privado, gere uma URL assinada (rota /sign)
-      const expiresIn = 60 * 60; // 1 hora
-      const { data: signedData, error: signError } = await this.supabase
-        .storage
-        .from('textos-biblicos')
-        .createSignedUrl(filePath, expiresIn);
-
-      if (signError) {
-        throw signError;
-      }
-
-      const downloadURL = signedData.signedUrl;
-
-      // Enviar para o backend
-      this.textosBiblicosService.enviarTexto(atrasadoId, downloadURL).subscribe(
-        () => {
-          this.uploading = false;
-          event.target.value = ''; // Limpar input
-          this.snackBar.open('Texto enviado com sucesso! Aguarde aprovação.', 'Fechar', { duration: 3000 });
-          this.loadAll();
-        },
-        () => {
-          this.uploading = false;
-          event.target.value = ''; // Limpar input
-          this.snackBar.open('Erro ao enviar texto', 'Fechar', { duration: 3000 });
-        }
-      );
     } catch (error) {
       this.uploading = false;
       event.target.value = ''; // Limpar input

@@ -64,6 +64,15 @@ import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/c
 
 registerLocaleData(localePt, 'pt-BR');
 
+// Inicializa providers do Firebase apenas se existir configuração no environment.
+const firebaseConfig = (environment as any).firebase;
+const firebaseProviders = firebaseConfig ? [
+  provideFirebaseApp(() => initializeApp(firebaseConfig)),
+  provideAuth(() => getAuth()),
+  provideFirestore(() => getFirestore()),
+  provideStorage(() => getStorage()),
+] : [];
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -102,10 +111,7 @@ registerLocaleData(localePt, 'pt-BR');
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
+    ...firebaseProviders,
     GoogleChartsModule
   ],
   providers: [
