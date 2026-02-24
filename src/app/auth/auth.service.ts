@@ -17,14 +17,12 @@ export class AuthService {
     private router: Router,
     private http: HttpClient
   ) {
-    console.log('🔥 Auth instance:', this.auth);
     this.listenAuth();
   }
 
   private listenAuth(): void {
     onAuthStateChanged(this.auth, async (user: User | null) => {
       if (user) {
-        console.log('🔥 USUÁRIO LOGADO:', user);
         // Se ainda não temos o usuário do backend, busca-o
         if (!this.currentUserSubject.value) {
           try {
@@ -50,7 +48,6 @@ export class AuthService {
           this.router.navigate(['/dashboard']);
         }
       } else {
-        console.log('❌ USUÁRIO DESLOGADO');
         this.currentUserSubject.next(null);
         this.router.navigate(['/login']);
       }

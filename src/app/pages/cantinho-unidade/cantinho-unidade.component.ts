@@ -11,7 +11,7 @@ import { PointsService } from 'src/app/services/points.service';
   templateUrl: './cantinho-unidade.component.html',
   styleUrls: ['./cantinho-unidade.component.scss']
 })
-export class CantinhoUnidadeComponent implements OnInit {
+export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   form: FormGroup;
   sundays: Date[] = [];
   submitting = false;
@@ -21,6 +21,8 @@ export class CantinhoUnidadeComponent implements OnInit {
   currentPoints: any = null;
   currentUser: any = null;
   pointsMap: Record<number, number> = {};
+  pointsLoading = false;
+  rowUpdatedId: number | null = null;
   // opções de pontuação por critério
   presenceOptions = [10, 0];
   pontualidadeOptions = [5, 0];
@@ -100,6 +102,7 @@ export class CantinhoUnidadeComponent implements OnInit {
       return;
     }
 
+    this.pointsLoading = true;
     const requests = list.map(d => this.pointsService.getByDesbravador(d.id));
     forkJoin(requests).pipe(takeUntil(this.destroy$)).subscribe(results => {
       const map: Record<number, number> = {};
@@ -108,10 +111,17 @@ export class CantinhoUnidadeComponent implements OnInit {
         map[id] = p?.total ?? 0;
       });
       this.pointsMap = map;
+      this.pointsLoading = false;
     }, err => {
       console.error('Erro ao carregar pontos:', err);
       this.pointsMap = {};
+      this.pointsLoading = false;
     });
+  }
+
+  refreshPoints() {
+    if (!this.desbravadores || !this.desbravadores.length) return;
+    this.loadPointsForDesbravadores(this.desbravadores);
   }
 
   
@@ -204,8 +214,15 @@ export class CantinhoUnidadeComponent implements OnInit {
 
       console.log('Cantinho da unidade submission:', payload);
       this.successMessage = 'Pontuação registrada com sucesso.';
-      // atualizar saldo exibido
-      this.pointsService.getByDesbravador(desbravadorId).pipe(takeUntil(this.destroy$)).subscribe(p => this.currentPoints = p);
+      // atualizar saldo exibido e a tabela
+      this.pointsService.getByDesbravador(desbravadorId).pipe(takeUntil(this.destroy$)).subscribe(p => {
+        this.currentPoints = p;
+        const totalSaldo = p?.total ?? (this.pointsMap[desbravadorId] ?? 0) + payload.total;
+        this.pointsMap = { ...this.pointsMap, [desbravadorId]: totalSaldo };
+        this.rowUpdatedId = desbravadorId;
+        setTimeout(() => this.rowUpdatedId = null, 2500);
+        this.refreshPoints();
+      });
       this.form.reset();
     } catch (err) {
       console.error(err);

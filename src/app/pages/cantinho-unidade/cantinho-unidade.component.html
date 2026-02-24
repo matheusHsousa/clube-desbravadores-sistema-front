@@ -7,20 +7,25 @@
     <h2>Tabela de Pontos da Unidade</h2>
     <mat-card>
       <mat-card-content>
+        <div class="table-header">
+          <div class="title">Pontos por Desbravador</div>
+        </div>
+
         <table class="points-table">
           <thead>
             <tr>
               <th>Nome</th>
-              <th>Pontos</th>
+              <th class="saldo">Saldo</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let d of desbravadores">
-              <td>{{ d.name }}</td>
-              <td>{{ pointsMap[d.id] }}</td>
+            <tr *ngFor="let d of desbravadores" [class.updated]="rowUpdatedId === d.id">
+              <td class="name">{{ d.name }}</td>
+              <td class="saldo">{{ pointsMap[d.id] ?? 0 }}</td>
             </tr>
           </tbody>
         </table>
+        <div *ngIf="!desbravadores?.length" class="empty">Nenhum desbravador encontrado.</div>
       </mat-card-content>
     </mat-card>
   </section>
