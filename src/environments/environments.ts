@@ -10,5 +10,5 @@ export const environment = {
       measurementId: "G-7L4EKV9FSY"
     }
   ,
-  apiBase: 'http://localhost:3000'
+  apiBase: 'https://backend-sistema-clube-production.up.railway.app'
 }

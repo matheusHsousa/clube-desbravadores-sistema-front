@@ -128,11 +128,13 @@ export class UserProfileComponent implements OnInit {
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
         .toLowerCase();
+      // remove any existing extension from the sanitized name to avoid double extensions
+      const baseName = safeName.replace(/\.[^/.]+$/, '') || 'avatar';
       const ext = 'jpg';
-      const filePath = `avatars/${this.currentUser?.id || 'anon'}/${timestamp}_${safeName}.${ext}`;
+      const filePath = `avatars/${this.currentUser?.id || 'anon'}/${timestamp}_${baseName}.${ext}`;
 
       const form = new FormData();
-      form.append('avatar', compressedBlob, `${timestamp}_${safeName}.jpg`);
+      form.append('avatar', compressedBlob, `${timestamp}_${baseName}.${ext}`);
       form.append('userId', String(this.currentUser?.id ?? 'anon'));
 
       let publicUrl: string | null = null;

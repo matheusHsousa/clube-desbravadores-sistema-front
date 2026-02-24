@@ -1,6 +1,6 @@
 {
   "/upload/*": {
-    "target": "http://localhost:3000",
+    "target": "https://backend-sistema-clube-production.up.railway.app",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "warn"

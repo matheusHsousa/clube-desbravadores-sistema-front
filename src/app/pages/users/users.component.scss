@@ -173,6 +173,11 @@ body {
     background: #1976d2
 }
 
+/* Secretaria badge (estava faltando: texto branco precisa de fundo) */
+.role-SECRETARIA {
+    background: #388e3c;
+}
+
 .btn-icon {
     background: var(--primary);
     border: none;
