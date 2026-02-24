@@ -60,6 +60,10 @@ export class DesbravadoresService {
     return this.http.post(this.base, payload);
   }
 
+  import(payloads: any[]) {
+    return this.http.post(`${this.base}/import`, payloads);
+  }
+
   update(id: number, payload: Partial<{ name: string; birthDate?: string; unidade?: string; classe?: string }>) {
     return this.http.put(`${this.base}/${id}`, payload);
   }

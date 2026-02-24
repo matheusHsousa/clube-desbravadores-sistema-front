@@ -1,8 +1,14 @@
-<div class="cadastro-desbravadores">
-  <div class="cadastro-card">
-    <h2>Cadastro de Desbravadores</h2>
-    <div class="card-content">
-      <form [formGroup]="form" (ngSubmit)="submit()" class="cadastro-form">
+<div class="cadastro">
+  <div class="cadastro__header">
+    <div>
+      <div class="cadastro__title">Cadastro de Desbravadores</div>
+      <div class="cadastro__subtitle">Adicione e gerencie os desbravadores do clube</div>
+    </div>
+  </div>
+
+  <div class="cadastro__body">
+    <div class="cadastro__form">
+      <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="form-grid">
           <mat-form-field appearance="outline" class="full">
             <mat-label>Nome</mat-label>
@@ -29,9 +35,9 @@
           </mat-form-field>
         </div>
 
-        <div class="actions-row">
-          <button mat-stroked-button type="button" class="secondary-btn" (click)="form.reset()">Limpar</button>
-          <button mat-flat-button color="primary" type="submit" class="primary-btn" [disabled]="form.invalid">Cadastrar</button>
+        <div class="form-actions">
+          <button mat-stroked-button type="button" class="btn" (click)="form.reset()">Limpar</button>
+          <button mat-flat-button color="primary" type="submit" class="btn btn--primary" [disabled]="form.invalid">Cadastrar</button>
         </div>
       </form>
 
@@ -39,7 +45,51 @@
       <div class="desb-toolbar">
         <input class="search-input" placeholder="Buscar por nome" type="search" [value]="filterName" (input)="setFilter($any($event.target).value)" />
         <button *ngIf="filterName" type="button" class="btn btn--plain" (click)="setFilter('')">Limpar</button>
+        <div class="import-block">
+          <input type="file" accept=".xlsx,.csv" (change)="handleFile($event)" />
+        </div>
       </div>
+
+      <div *ngIf="previewRows && previewRows.length" class="import-preview">
+        <h4>Pré-visualização / Revisão</h4>
+        <div>
+          <label><input type="checkbox" (change)="toggleSelectAll($any($event.target).checked)" /> Selecionar todos</label>
+        </div>
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Nome</th>
+              <th>Nascimento</th>
+              <th>Unidade</th>
+              <th>Classe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of previewRows; let i = index">
+              <td><input type="checkbox" [(ngModel)]="r.selected" /></td>
+              <td><input type="text" [value]="r.name" (input)="updatePreviewField(r,'name',$any($event.target).value)" /></td>
+              <td><input type="date" [value]="r.birthDate" (input)="updatePreviewField(r,'birthDate',$any($event.target).value)" /></td>
+              <td>
+                <select [value]="r.unidade" (change)="updatePreviewField(r,'unidade',$any($event.target).value)">
+                  <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
+                </select>
+              </td>
+              <td>
+                <select [value]="r.classe" (change)="updatePreviewField(r,'classe',$any($event.target).value)">
+                  <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="preview-actions">
+          <button mat-stroked-button type="button" (click)="cancelPreview()">Cancelar</button>
+          <button mat-flat-button color="primary" type="button" (click)="importSelected()">Importar selecionados</button>
+        </div>
+      </div>
+
       <div *ngIf="loading">Carregando...</div>
       <ul *ngIf="!loading" class="desb-list">
         <li *ngFor="let d of filteredDesbravadores" class="desb-item">
@@ -52,14 +102,8 @@
             </div>
 
             <div *ngIf="d._editing" class="edit-inline">
-              <input type="text" [value]="d._editCopy.name" (input)="updateEdit(d,'name',$any($event.target).value)" />
-              <input type="date" [value]="d._editCopy.birthDate" (input)="updateEdit(d,'birthDate',$any($event.target).value)" />
-              <select [value]="d._editCopy.unidade" (change)="updateEdit(d,'unidade',$any($event.target).value)">
-                <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
-              </select>
-              <select [value]="d._editCopy.classe" (change)="updateEdit(d,'classe',$any($event.target).value)">
-                <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
-              </select>
+                <input type="text" [value]="d._editCopy.name" (input)="updateEdit(d,'name',$any($event.target).value)" />
+                <input type="date" [value]="d._editCopy.birthDate" (input)="updateEdit(d,'birthDate',$any($event.target).value)" />
             </div>
           </div>
 
@@ -72,5 +116,9 @@
         </li>
       </ul>
     </div>
+
+    <aside class="aside">
+      <div class="helper">Dica: use buscas rápidas para encontrar desbravadores.</div>
+    </aside>
   </div>
 </div>
