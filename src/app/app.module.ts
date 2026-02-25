@@ -61,6 +61,7 @@ import { MeritoTopComponent } from './pages/merito/merito-top.component';
 import { MeritoService } from './services/merito.service';
 import { MeritoPageComponent } from './pages/merito/merito-page.component';
 import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/cadastro-desbravadores.component';
+import { DesafioUnidadesComponent } from './pages/desafio-unidades/desafio-unidades.component';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -83,6 +84,7 @@ const firebaseProviders = firebaseConfig ? [
     , ConfirmDialogComponent,
     MeritoPageComponent,
     CadastroDesbravadoresComponent,
+    DesafioUnidadesComponent,
     MeritoTopComponent
   ],
   imports: [

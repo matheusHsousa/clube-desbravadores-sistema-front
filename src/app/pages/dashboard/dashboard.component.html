@@ -58,6 +58,15 @@
         </div>
       </div>
 
+      <!-- Desafio das Unidades (Admin + Conselheiro) -->
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToDesafioUnidades()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>emoji_events</mat-icon></div>
+        <div>
+          <h2 title="Desafio das Unidades">Desafio das Unidades</h2>
+          <p title="Criar, submeter e aprovar desafios por unidade">Criar, submeter e aprovar desafios por unidade</p>
+        </div>
+      </div>
+
       <!-- Placar de Mérito (Admin) -->
       <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToMerito()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>leaderboard</mat-icon></div>

@@ -14,6 +14,7 @@ import { UserProfileComponent } from './pages/user-profile/user-profile.componen
 import { TextosBiblicosComponent } from './pages/textos-biblicos/textos-biblicos.component';
 import { MeritoPageComponent } from './pages/merito/merito-page.component';
 import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/cadastro-desbravadores.component';
+import { DesafioUnidadesComponent } from './pages/desafio-unidades/desafio-unidades.component';
 import { InstrutorGuard } from './core/guards/instrutores.guard';
 
 
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'cartoes-classes', component: CartoesClassesComponent, canActivate: [InstrutorGuard], data: { order: 4 } },
   { path: 'cadastro-desbravadores', component: CadastroDesbravadoresComponent, canActivate: [AdminOrSecretariaGuard], data: { order: 5 } },
   { path: 'merito', component: MeritoPageComponent, data: { order: 6 } },
+  { path: 'desafio-unidades', component: DesafioUnidadesComponent, canActivate: [AdminOrConselheiroGuard], data: { order: 10 } },
   { path: 'atrasados', component: AtrasadosComponent, canActivate: [AdminGuard], data: { order: 7 } },
   { path: 'textos-biblicos', component: TextosBiblicosComponent, canActivate: [AdminOrConselheiroGuard], data: { order: 8 } },
   { path: 'users', component: UsersComponent, data: { order: 9 } },
