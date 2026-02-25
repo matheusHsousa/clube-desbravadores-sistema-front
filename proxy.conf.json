@@ -1,6 +1,6 @@
 {
   "/upload/*": {
-    "target": "https://backend-sistema-clube-production.up.railway.app/",
+    "target": "https://backend-sistema-clube-production.up.railway.app",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "warn"
