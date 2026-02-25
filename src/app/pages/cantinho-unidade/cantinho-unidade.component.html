@@ -21,7 +21,7 @@
           <tbody>
             <tr *ngFor="let d of desbravadores" [class.updated]="rowUpdatedId === d.id">
               <td class="name">{{ d.name }}</td>
-              <td class="saldo">{{ pointsMap[d.id] ?? 0 }}</td>
+              <td class="saldo">{{ pointsMap[d.id] }}</td>
             </tr>
           </tbody>
         </table>

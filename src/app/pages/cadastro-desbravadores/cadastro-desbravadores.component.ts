@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DesbravadoresService } from 'src/app/services/desbravadores.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -20,6 +20,16 @@ export class CadastroDesbravadoresComponent implements OnInit {
   importUnidade: string | null = null;
   importClasse: string | null = null;
   previewRows: any[] = [];
+  showPreview = false;
+  isImporting = false;
+  selectAllChecked = false;
+  // sheet drag state (mobile)
+  private _sheetStartY = 0;
+  private _sheetCurrentTranslate = 0;
+  panelStyle: any = {};
+  previewApplyUnidade: string | null = null;
+  previewApplyClasse: string | null = null;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private fb: FormBuilder,
@@ -29,7 +39,7 @@ export class CadastroDesbravadoresComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      birthDate: [''],
+      birthDate: ['', Validators.required],
       unidade: [null, Validators.required],
       classe: [null, Validators.required]
     });
@@ -201,10 +211,11 @@ export class CadastroDesbravadoresComponent implements OnInit {
           const rawDateCell = (r['Nascimento'] || r['nascimento'] || r['Birth'] || r['birthDate'] || r['birth'] || '');
           const birthDate = this.parseImportedDate(rawDateCell);
 
-          const unidade = this.importUnidade || this.form.value.unidade || null;
-          const classe = this.importClasse || this.form.value.classe || null;
+          // iniciar sem Unidade/Classe — preenchimento manual obrigatório
+          const unidade = null;
+          const classe = null;
 
-          preview.push({ name, birthDate, unidade, classe, selected: true });
+          preview.push({ name, birthDate, unidade, classe, selected: false });
         }
 
         if (!preview.length) {
@@ -214,6 +225,8 @@ export class CadastroDesbravadoresComponent implements OnInit {
 
         // armazenar pré-visualização para edição antes do envio
         this.previewRows = preview;
+        this.selectAllChecked = false;
+        this.openPreview();
         this.snack.open(`Carregados ${preview.length} registros para revisão`, 'Fechar', { duration: 3000 });
       } catch (err) {
         console.error(err);
@@ -223,13 +236,84 @@ export class CadastroDesbravadoresComponent implements OnInit {
     reader.readAsArrayBuffer(file);
   }
 
+  openPreview() {
+    this.showPreview = true;
+    // reset any inline transform
+    this.panelStyle = {};
+    this._sheetCurrentTranslate = 0;
+  }
+
+  closePreview() {
+    this.showPreview = false;
+    this.panelStyle = {};
+    this._sheetCurrentTranslate = 0;
+    // keep previewRows for possible re-open; to clear use cancelPreview()
+  }
+
+  // Mobile bottom sheet touch handlers
+  onTouchStart(evt: TouchEvent) {
+    if (!evt.touches || evt.touches.length === 0) return;
+    this._sheetStartY = evt.touches[0].clientY;
+    this._sheetCurrentTranslate = 0;
+  }
+
+  onTouchMove(evt: TouchEvent) {
+    if (!evt.touches || evt.touches.length === 0) return;
+    const y = evt.touches[0].clientY;
+    const dy = Math.max(0, y - this._sheetStartY);
+    this._sheetCurrentTranslate = dy;
+    this.panelStyle = { transform: `translateY(${dy}px)` };
+    evt.preventDefault();
+  }
+
+  onTouchEnd(evt: TouchEvent) {
+    const threshold = 120; // px to close
+    if (this._sheetCurrentTranslate > threshold) {
+      this.closePreview();
+    } else {
+      // animate back
+      this.panelStyle = { transform: `translateY(0)`, transition: 'transform 180ms ease' };
+      setTimeout(() => this.panelStyle = {}, 200);
+    }
+    this._sheetStartY = 0;
+    this._sheetCurrentTranslate = 0;
+  }
+
   updatePreviewField(row: any, key: string, value: any) {
     if (!row) return;
     row[key] = value;
   }
 
+  applyPreviewToSelected() {
+    const u = this.previewApplyUnidade;
+    const c = this.previewApplyClasse;
+    if (!u && !c) {
+      this.snack.open('Selecione Unidade ou Classe para aplicar', 'Fechar', { duration: 3000 });
+      return;
+    }
+    const sel = (this.previewRows || []).filter(r => r.selected);
+    sel.forEach(r => {
+      if (u) r.unidade = u;
+      if (c) r.classe = c;
+    });
+    this.snack.open(`Aplicado a ${sel.length} registros`, 'Fechar', { duration: 3000 });
+  }
+
+  onRowSelectChange(row: any, checked: boolean) {
+    if (!row) return;
+    row.selected = checked;
+    this.selectAllChecked = (this.previewRows || []).length > 0 && (this.previewRows || []).every(r => r.selected);
+  }
+
   toggleSelectAll(checked: boolean) {
     (this.previewRows || []).forEach(r => r.selected = checked);
+    this.selectAllChecked = checked;
+  }
+
+  get canImportSelected(): boolean {
+    const sel = (this.previewRows || []).filter(r => r.selected);
+    if (!sel.length) return false;
+    return sel.every(r => !!r.unidade && !!r.classe);
   }
 
   importSelected() {
@@ -246,25 +330,48 @@ export class CadastroDesbravadoresComponent implements OnInit {
     }
 
     // validação rápida
-    for (const it of toImport) {
-      if (!it.name || !it.unidade || !it.classe) {
-        this.snack.open('Cada registro precisa de Nome, Unidade e Classe antes da importação', 'Fechar', { duration: 4000 });
-        return;
-      }
+    const invalids = toImport.map((it, idx) => ({ it, idx })).filter(x => !x.it.name || !x.it.unidade || !x.it.classe);
+    if (invalids.length) {
+      this.snack.open(`Existem ${invalids.length} registros com dados faltando (Unidade/Classe). Preencha todos antes de importar.`, 'Fechar', { duration: 6000 });
+      return;
     }
 
-    this.service.import(toImport).subscribe(() => {
-      this.snack.open(`Importados ${toImport.length} desbravadores`, 'Fechar', { duration: 4000 });
-      this.previewRows = [];
-      this.load();
-    }, err => {
-      console.error('Import error', err);
-      this.snack.open('Erro ao importar arquivo: ' + (err?.error?.message || err?.message || ''), 'Fechar', { duration: 5000 });
+    console.log('[Import] abrindo confirmação');
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Confirmar importação', message: `Confirma importação de ${toImport.length} desbravadores?` }
+    });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.isImporting = true;
+      this.service.import(toImport).subscribe(() => {
+        this.snack.open(`Importados ${toImport.length} desbravadores`, 'Fechar', { duration: 4000 });
+        this.resetImportState();
+        this.load();
+      }, err => {
+        this.snack.open('Erro ao importar arquivo: ' + (err?.error?.message || err?.message || ''), 'Fechar', { duration: 5000 });
+        this.isImporting = false;
+      });
     });
   }
 
+  onImportClick() {
+    this.importSelected();
+  }
+
   cancelPreview() {
+    this.resetImportState();
+  }
+
+  private resetImportState() {
     this.previewRows = [];
+    this.showPreview = false;
+    this.isImporting = false;
+    try {
+      if (this.fileInput && this.fileInput.nativeElement) this.fileInput.nativeElement.value = '';
+    } catch (e) {
+      // ignore
+    }
   }
 
   submit() {
@@ -278,5 +385,11 @@ export class CadastroDesbravadoresComponent implements OnInit {
       console.error(err);
       this.snack.open('Erro ao cadastrar desbravador', 'Fechar', { duration: 5000 });
     });
+  }
+
+  get canClear(): boolean {
+    if (!this.form) return false;
+    const v = this.form.value || {};
+    return !!(v.name || v.birthDate || v.unidade || v.classe);
   }
 }

@@ -36,26 +36,39 @@
         </div>
 
         <div class="form-actions">
-          <button mat-stroked-button type="button" class="btn" (click)="form.reset()">Limpar</button>
-          <button mat-flat-button color="primary" type="submit" class="btn btn--primary" [disabled]="form.invalid">Cadastrar</button>
+          <button mat-stroked-button type="button" class="btn" (click)="form.reset()" [disabled]="!canClear">Limpar</button>
+          <button mat-flat-button color="primary" style="color: #fff;" type="submit" class="btn btn--primary" [disabled]="form.invalid">Cadastrar</button>
         </div>
       </form>
 
       <h3 class="section-title">Desbravadores cadastrados</h3>
       <div class="desb-toolbar">
-        <input class="search-input" placeholder="Buscar por nome" type="search" [value]="filterName" (input)="setFilter($any($event.target).value)" />
         <button *ngIf="filterName" type="button" class="btn btn--plain" (click)="setFilter('')">Limpar</button>
         <div class="import-block">
-          <input type="file" accept=".xlsx,.csv" (change)="handleFile($event)" />
+          <input #fileInput type="file" accept=".xlsx,.csv" (change)="handleFile($event)" style="display:none" />
+          <button type="button" class="btn file-btn" (click)="fileInput.click()">
+            <mat-icon>upload_file</mat-icon>
+            <span>Escolher arquivo</span>
+          </button>
+          <span class="file-name" *ngIf="previewRows && previewRows.length">{{ previewRows.length }} registros carregados</span>
+          <button *ngIf="previewRows && previewRows.length && !showPreview" type="button" class="btn btn--outline" (click)="openPreview()">Reabrir pré-visualização</button>
         </div>
       </div>
 
-      <div *ngIf="previewRows && previewRows.length" class="import-preview">
-        <h4>Pré-visualização / Revisão</h4>
-        <div>
-          <label><input type="checkbox" (change)="toggleSelectAll($any($event.target).checked)" /> Selecionar todos</label>
+      <div *ngIf="previewRows && previewRows.length" class="import-preview preview-panel" [class.open]="showPreview" [ngStyle]="panelStyle">
+        <div class="preview-header" (touchstart)="onTouchStart($event)" (touchmove)="onTouchMove($event)" (touchend)="onTouchEnd($event)">
+          <h4>Pré-visualização / Revisão</h4>
+              <div class="header-actions">
+                <button mat-icon-button class="close-x" aria-label="Fechar pré-visualização" (click)="closePreview()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
         </div>
-        <table class="preview-table">
+        <div class="preview-content">
+          <div class="preview-actions-top">
+            <label><input type="checkbox" [checked]="selectAllChecked" (change)="toggleSelectAll($any($event.target).checked)" /> Selecionar todos</label>
+          </div>
+          <table class="preview-table">
           <thead>
             <tr>
               <th></th>
@@ -67,31 +80,41 @@
           </thead>
           <tbody>
             <tr *ngFor="let r of previewRows; let i = index">
-              <td><input type="checkbox" [(ngModel)]="r.selected" /></td>
+              <td>
+                <input type="checkbox" [checked]="r.selected" (change)="onRowSelectChange(r, $any($event.target).checked)" />
+              </td>
               <td><input type="text" [value]="r.name" (input)="updatePreviewField(r,'name',$any($event.target).value)" /></td>
               <td><input type="date" [value]="r.birthDate" (input)="updatePreviewField(r,'birthDate',$any($event.target).value)" /></td>
               <td>
                 <select [value]="r.unidade" (change)="updatePreviewField(r,'unidade',$any($event.target).value)">
+                  <option value="" disabled [selected]="!r.unidade">Selecione Unidade</option>
                   <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
                 </select>
               </td>
               <td>
                 <select [value]="r.classe" (change)="updatePreviewField(r,'classe',$any($event.target).value)">
+                  <option value="" disabled [selected]="!r.classe">Selecione Classe</option>
                   <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
                 </select>
               </td>
             </tr>
           </tbody>
         </table>
-
-        <div class="preview-actions">
-          <button mat-stroked-button type="button" (click)="cancelPreview()">Cancelar</button>
-          <button mat-flat-button color="primary" type="button" (click)="importSelected()">Importar selecionados</button>
+        </div>
+        <div class="preview-actions footer-actions">
+          <button mat-stroked-button type="button" (click)="cancelPreview()" [disabled]="isImporting">Cancelar</button>
+          <button mat-flat-button color="primary" type="button" (click)="onImportClick()" [disabled]="isImporting || !canImportSelected">
+            <mat-progress-spinner *ngIf="isImporting" diameter="18" mode="indeterminate" color="accent"></mat-progress-spinner>
+            <span *ngIf="!isImporting">Importar selecionados</span>
+            <span *ngIf="isImporting">Importando...</span>
+          </button>
         </div>
       </div>
 
       <div *ngIf="loading">Carregando...</div>
-      <ul *ngIf="!loading" class="desb-list">
+      <ul *ngIf="!loading && filteredDesbravadores.length > 0" class="desb-list">
+        <input class="search-input" placeholder="Buscar por nome" type="search" [value]="filterName" (input)="setFilter($any($event.target).value)" />
+
         <li *ngFor="let d of filteredDesbravadores" class="desb-item">
           <div class="avatar">{{ initials(d.name) }}</div>
 
@@ -116,9 +139,5 @@
         </li>
       </ul>
     </div>
-
-    <aside class="aside">
-      <div class="helper">Dica: use buscas rápidas para encontrar desbravadores.</div>
-    </aside>
   </div>
 </div>

@@ -25,6 +25,60 @@ main, .content, router-outlet + * {
   --dur-slow: 420ms;
 }
 
+/* Tema global (paleta azul, cantos arredondados maiores, sombras sutis) */
+:root {
+  --color-primary: #1e88e5;
+  --color-primary-600: #1976d2;
+  --color-primary-700: #1565c0;
+  --color-surface: #ffffff;
+  --color-muted: #6b7280;
+  --color-bg: #f6f9fc;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --shadow-soft: 0 6px 18px rgba(16,24,40,0.06);
+  --shadow-subtle: 0 8px 30px rgba(16,24,40,0.04);
+}
+
+/* Component tokens */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 1rem;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg,var(--color-primary), var(--color-primary-600));
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.6rem 0.95rem;
+  border: none;
+  font-weight: 600;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-primary-700);
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(30,136,229,0.08);
+}
+
+/* Form input modern look */
+.form-control {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid #e6eef9;
+  background: #fff;
+}
+
+/* Page container */
+.app-container {
+  background: var(--color-bg);
+  min-height: 100vh;
+  padding: 1rem 0.75rem;
+}
+
 /* Respect user preference */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

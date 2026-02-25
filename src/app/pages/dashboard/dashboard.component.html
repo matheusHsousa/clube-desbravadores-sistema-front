@@ -35,8 +35,8 @@
       <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToCadastroDesbravadores()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>person_add</mat-icon></div>
         <div>
-          <h2>Cadastro Desbravadores</h2>
-          <p>Cadastrar desbravadores e atribuir unidades</p>
+          <h2 title="Cadastro Desbravadores">Cadastro Desbravadores</h2>
+          <p title="Cadastrar desbravadores e atribuir unidades">Cadastrar desbravadores e atribuir unidades</p>
         </div>
       </div>
 
@@ -44,8 +44,8 @@
       <div class="card" *ngIf="hasRole('INSTRUTOR')" (click)="goToClasses()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>groups</mat-icon></div>
         <div>
-          <h2>Classes</h2>
-          <p>Gerencie as classes dos desbravadores</p>
+          <h2 title="Classes">Classes</h2>
+          <p title="Gerencie as classes dos desbravadores">Gerencie as classes dos desbravadores</p>
         </div>
       </div>
 
@@ -53,8 +53,8 @@
       <div class="card" *ngIf="hasRole('CONSELHEIRO')" (click)="goToUnidades()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>flag</mat-icon></div>
         <div>
-          <h2>Unidades</h2>
-          <p>Organização das unidades</p>
+          <h2 title="Unidades">Unidades</h2>
+          <p title="Organização das unidades">Organização das unidades</p>
         </div>
       </div>
 
@@ -62,8 +62,8 @@
       <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToMerito()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>leaderboard</mat-icon></div>
         <div>
-          <h2>Placar de Mérito</h2>
-          <p>Ver ranking completo de mérito por classe e pontos</p>
+          <h2 title="Placar de Mérito">Placar de Mérito</h2>
+          <p title="Ver ranking completo de mérito por classe e pontos">Ver ranking completo de mérito por classe e pontos</p>
         </div>
       </div>
 
@@ -71,8 +71,8 @@
       <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToAtrasados()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>schedule</mat-icon></div>
         <div>
-          <h2>Atrasados</h2>
-          <p>Marcar desbravadores atrasados do dia</p>
+          <h2 title="Atrasados">Atrasados</h2>
+          <p title="Marcar desbravadores atrasados do dia">Marcar desbravadores atrasados do dia</p>
         </div>
       </div>
 
@@ -80,8 +80,8 @@
       <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToTextosBiblicos()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>menu_book</mat-icon></div>
         <div>
-          <h2>Textos Bíblicos</h2>
-          <p>Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)</p>
+          <h2 title="Textos Bíblicos">Textos Bíblicos</h2>
+          <p title="Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)">Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)</p>
         </div>
       </div>
 
