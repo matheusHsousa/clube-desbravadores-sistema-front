@@ -1,10 +1,10 @@
 {
   "name": "clube-desbravadores",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --configuration production && npx serve -s dist/clube-desbravadores -l $PORT",
-    "build": "ng build --configuration production",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
