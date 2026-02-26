@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DesbravadoresService } from 'src/app/services/desbravadores.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-cadastro-desbravadores',
@@ -14,18 +17,83 @@ export class CadastroDesbravadoresComponent implements OnInit {
   desbravadores: any[] = [];
   unidades = ['DA','ASER','MANASSES','JUDA','BENJAMIN','RUBEN'];
   classes = ['AMIGO','COMPANHEIRO','PESQUISADOR','PIONEIRO','EXCURSIONISTA','GUIA'];
+  importUnidade: string | null = null;
+  importClasse: string | null = null;
+  previewRows: any[] = [];
+  showPreview = false;
+  isImporting = false;
+  selectAllChecked = false;
+  // sheet drag state (mobile)
+  private _sheetStartY = 0;
+  private _sheetCurrentTranslate = 0;
+  panelStyle: any = {};
+  previewApplyUnidade: string | null = null;
+  previewApplyClasse: string | null = null;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private fb: FormBuilder,
     private service: DesbravadoresService,
-    private snack: MatSnackBar
+    private snack: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      birthDate: [''],
+      birthDate: ['', Validators.required],
       unidade: [null, Validators.required],
       classe: [null, Validators.required]
     });
+  }
+
+  private parseImportedDate(raw: any): string | null {
+    if (raw === null || raw === undefined || raw === '') return null;
+    // If already a Date
+    if (raw instanceof Date) {
+      if (!Number.isNaN(raw.getTime())) return raw.toISOString().slice(0, 10);
+      return null;
+    }
+
+    // If numeric (Excel serial)
+    if (typeof raw === 'number') {
+      try {
+        const ssf = (XLSX as any).SSF;
+        if (ssf && typeof ssf.parse_date_code === 'function') {
+          const dc = ssf.parse_date_code(raw);
+          if (dc) {
+            const d = new Date(dc.y, dc.m - 1, dc.d);
+            if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+          }
+        }
+      } catch (err) {
+        // fallback below
+      }
+      // Fallback conversion from Excel serial (days since 1899-12-31)
+      const jsDate = new Date(Math.round((raw - 25569) * 86400 * 1000));
+      if (!Number.isNaN(jsDate.getTime())) return jsDate.toISOString().slice(0, 10);
+      return null;
+    }
+
+    // If string: try dd/mm/yyyy or ISO
+    if (typeof raw === 'string') {
+      const s = raw.trim();
+      const br = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/;
+      const m = s.match(br);
+      if (m) {
+        let day = parseInt(m[1], 10);
+        let month = parseInt(m[2], 10);
+        let year = parseInt(m[3], 10);
+        if (year < 100) year += 2000;
+        const d = new Date(year, month - 1, day);
+        if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+      }
+
+      // try Date parser for ISO or other formats
+      const d2 = new Date(s);
+      if (!Number.isNaN(d2.getTime())) return d2.toISOString().slice(0, 10);
+      return null;
+    }
+
+    return null;
   }
 
   ngOnInit(): void {
@@ -93,14 +161,217 @@ export class CadastroDesbravadoresComponent implements OnInit {
 
   remove(d: any) {
     if (!d || !d.id) return;
-    if (!confirm('Remover desbravador?')) return;
-    this.service.remove(d.id).subscribe(() => {
-      this.snack.open('Desbravador removido', 'Fechar', { duration: 3000 });
-      this.load();
-    }, err => {
-      console.error(err);
-      this.snack.open('Erro ao remover desbravador', 'Fechar', { duration: 5000 });
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Remover desbravador', message: `Confirma remoção de ${d.name}? Os dados relacionados serão apagados.` }
     });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.service.remove(d.id).subscribe(() => {
+        this.snack.open('Desbravador removido', 'Fechar', { duration: 3000 });
+        this.load();
+      }, err => {
+        console.error(err);
+        this.snack.open('Erro ao remover desbravador', 'Fechar', { duration: 5000 });
+      });
+    });
+  }
+
+  handleFile(event: any) {
+    const file: File = (event.target && event.target.files && event.target.files[0]) || null;
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    const isXlsx = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm');
+    const isCsv = name.endsWith('.csv');
+    if (!isXlsx && !isCsv) {
+      this.snack.open('Apenas arquivos .xlsx ou .csv são aceitos', 'Fechar', { duration: 4000 });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      try {
+        let wb: XLSX.WorkBook;
+        if (isCsv) {
+          const txt = e.target.result as string;
+          wb = XLSX.read(txt, { type: 'string', cellDates: true });
+        } else {
+          const data = new Uint8Array(e.target.result);
+          wb = XLSX.read(data, { type: 'array', cellDates: true });
+        }
+        const firstSheetName = wb.SheetNames[0];
+        const ws = wb.Sheets[firstSheetName];
+        const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        // mapando colunas para pré-visualização (Nome -> name, Nascimento -> birthDate)
+        const preview: any[] = [];
+        for (const r of rows) {
+          const name = (r['Nome'] || r['nome'] || r['Name'] || r['name'] || '')?.toString().trim();
+          if (!name) continue;
+          const rawDateCell = (r['Nascimento'] || r['nascimento'] || r['Birth'] || r['birthDate'] || r['birth'] || '');
+          const birthDate = this.parseImportedDate(rawDateCell);
+
+          // iniciar sem Unidade/Classe — preenchimento manual obrigatório
+          const unidade = null;
+          const classe = null;
+
+          preview.push({ name, birthDate, unidade, classe, selected: false });
+        }
+
+        if (!preview.length) {
+          this.snack.open('Nenhum registro válido encontrado no arquivo', 'Fechar', { duration: 3000 });
+          return;
+        }
+
+        // armazenar pré-visualização para edição antes do envio
+        this.previewRows = preview;
+        this.selectAllChecked = false;
+        this.openPreview();
+        this.snack.open(`Carregados ${preview.length} registros para revisão`, 'Fechar', { duration: 3000 });
+      } catch (err) {
+        console.error(err);
+        this.snack.open('Erro ao processar arquivo', 'Fechar', { duration: 4000 });
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  openPreview() {
+    this.showPreview = true;
+    // reset any inline transform
+    this.panelStyle = {};
+    this._sheetCurrentTranslate = 0;
+  }
+
+  closePreview() {
+    this.showPreview = false;
+    this.panelStyle = {};
+    this._sheetCurrentTranslate = 0;
+    // keep previewRows for possible re-open; to clear use cancelPreview()
+  }
+
+  // Mobile bottom sheet touch handlers
+  onTouchStart(evt: TouchEvent) {
+    if (!evt.touches || evt.touches.length === 0) return;
+    this._sheetStartY = evt.touches[0].clientY;
+    this._sheetCurrentTranslate = 0;
+  }
+
+  onTouchMove(evt: TouchEvent) {
+    if (!evt.touches || evt.touches.length === 0) return;
+    const y = evt.touches[0].clientY;
+    const dy = Math.max(0, y - this._sheetStartY);
+    this._sheetCurrentTranslate = dy;
+    this.panelStyle = { transform: `translateY(${dy}px)` };
+    evt.preventDefault();
+  }
+
+  onTouchEnd(evt: TouchEvent) {
+    const threshold = 120; // px to close
+    if (this._sheetCurrentTranslate > threshold) {
+      this.closePreview();
+    } else {
+      // animate back
+      this.panelStyle = { transform: `translateY(0)`, transition: 'transform 180ms ease' };
+      setTimeout(() => this.panelStyle = {}, 200);
+    }
+    this._sheetStartY = 0;
+    this._sheetCurrentTranslate = 0;
+  }
+
+  updatePreviewField(row: any, key: string, value: any) {
+    if (!row) return;
+    row[key] = value;
+  }
+
+  applyPreviewToSelected() {
+    const u = this.previewApplyUnidade;
+    const c = this.previewApplyClasse;
+    if (!u && !c) {
+      this.snack.open('Selecione Unidade ou Classe para aplicar', 'Fechar', { duration: 3000 });
+      return;
+    }
+    const sel = (this.previewRows || []).filter(r => r.selected);
+    sel.forEach(r => {
+      if (u) r.unidade = u;
+      if (c) r.classe = c;
+    });
+    this.snack.open(`Aplicado a ${sel.length} registros`, 'Fechar', { duration: 3000 });
+  }
+
+  onRowSelectChange(row: any, checked: boolean) {
+    if (!row) return;
+    row.selected = checked;
+    this.selectAllChecked = (this.previewRows || []).length > 0 && (this.previewRows || []).every(r => r.selected);
+  }
+
+  toggleSelectAll(checked: boolean) {
+    (this.previewRows || []).forEach(r => r.selected = checked);
+    this.selectAllChecked = checked;
+  }
+
+  get canImportSelected(): boolean {
+    const sel = (this.previewRows || []).filter(r => r.selected);
+    if (!sel.length) return false;
+    return sel.every(r => !!r.unidade && !!r.classe);
+  }
+
+  importSelected() {
+    const toImport = (this.previewRows || []).filter(r => r.selected).map(r => ({
+      name: r.name,
+      birthDate: r.birthDate || null,
+      unidade: r.unidade,
+      classe: r.classe
+    }));
+
+    if (!toImport.length) {
+      this.snack.open('Nenhum registro selecionado para importação', 'Fechar', { duration: 3000 });
+      return;
+    }
+
+    // validação rápida
+    const invalids = toImport.map((it, idx) => ({ it, idx })).filter(x => !x.it.name || !x.it.unidade || !x.it.classe);
+    if (invalids.length) {
+      this.snack.open(`Existem ${invalids.length} registros com dados faltando (Unidade/Classe). Preencha todos antes de importar.`, 'Fechar', { duration: 6000 });
+      return;
+    }
+
+    console.log('[Import] abrindo confirmação');
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Confirmar importação', message: `Confirma importação de ${toImport.length} desbravadores?` }
+    });
+
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.isImporting = true;
+      this.service.import(toImport).subscribe(() => {
+        this.snack.open(`Importados ${toImport.length} desbravadores`, 'Fechar', { duration: 4000 });
+        this.resetImportState();
+        this.load();
+      }, err => {
+        this.snack.open('Erro ao importar arquivo: ' + (err?.error?.message || err?.message || ''), 'Fechar', { duration: 5000 });
+        this.isImporting = false;
+      });
+    });
+  }
+
+  onImportClick() {
+    this.importSelected();
+  }
+
+  cancelPreview() {
+    this.resetImportState();
+  }
+
+  private resetImportState() {
+    this.previewRows = [];
+    this.showPreview = false;
+    this.isImporting = false;
+    try {
+      if (this.fileInput && this.fileInput.nativeElement) this.fileInput.nativeElement.value = '';
+    } catch (e) {
+      // ignore
+    }
   }
 
   submit() {
@@ -114,5 +385,11 @@ export class CadastroDesbravadoresComponent implements OnInit {
       console.error(err);
       this.snack.open('Erro ao cadastrar desbravador', 'Fechar', { duration: 5000 });
     });
+  }
+
+  get canClear(): boolean {
+    if (!this.form) return false;
+    const v = this.form.value || {};
+    return !!(v.name || v.birthDate || v.unidade || v.classe);
   }
 }

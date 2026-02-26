@@ -1,0 +1,67 @@
+.page-desafio-unidades {
+  padding: 16px;
+
+  .admin-panel, .conselheiro-panel {
+    margin-bottom: 24px;
+    background: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  ul { list-style: none; padding: 0; }
+  li { padding: 8px 0; border-bottom: 1px solid #eee; }
+  .submit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .preview img, .preview video {
+    max-width: 320px;
+    max-height: 240px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  .media-preview img, .media-preview video {
+    max-width: 420px;
+    max-height: 320px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    display: block;
+    margin: 8px 0;
+  }
+
+  .page-card { padding: 12px; }
+
+  .pending-list { display: grid; gap: 12px; }
+  .pending-card { background: #fafafa; }
+
+  .challenge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .challenge-card { display: flex; flex-direction: column; }
+
+  .submit-row { display: flex; flex-direction: column; gap: 8px; }
+  .file-input { border: none; }
+
+  .submit-actions { display: flex; gap: 8px; align-items: center; }
+
+  .full { width: 100%; }
+
+  .muted { color: #666; font-size: 0.95rem; }
+
+  .quick-submit {
+    background: transparent;
+    border: 1px dashed #ccc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+}

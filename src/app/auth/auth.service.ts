@@ -14,11 +14,46 @@ export class AuthService {
     private router: Router,
     private http: HttpClient
   ) {
-    // Ao iniciar, tenta carregar o usuário atual do backend via cookie/session
-    this.fetchCurrentUser().catch(() => {});
+    this.listenAuth();
   }
 
-  async fetchCurrentUser(): Promise<void> {
+  private listenAuth(): void {
+    onAuthStateChanged(this.auth, async (user: User | null) => {
+      if (user) {
+        // Se ainda não temos o usuário do backend, busca-o
+        if (!this.currentUserSubject.value) {
+          try {
+            this.isAwaitingBackend = true;
+            const token = await user.getIdToken();
+            const backendUser = await firstValueFrom(
+              this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
+                `${environment.apiBase}/auth/login`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+              )
+            );
+            this.currentUserSubject.next(backendUser);
+          } catch (err) {
+            console.error('Erro ao buscar usuário no backend em onAuthStateChanged:', err);
+          } finally {
+            this.isAwaitingBackend = false;
+          }
+        }
+
+        // evita redirecionamento caso estejamos aguardando a validação no backend
+        if (!this.isAwaitingBackend) {
+          this.router.navigate(['/dashboard']);
+        }
+      } else {
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  async loginGoogle() {
+    const provider = new GoogleAuthProvider();
+
     try {
       const user = await firstValueFrom(this.http.get<any>(`http://localhost:4000/auth/me`, { withCredentials: true }));
       this.currentUserSubject.next(user ?? null);

@@ -1,0 +1,91 @@
+<div class="page-desafio-unidades">
+  <mat-card class="page-card">
+    <mat-card-title>Desafio das Unidades</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="auth.hasRole('ADMIN')" class="admin-panel">
+        <h3>Criar novo desafio</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Título</mat-label>
+            <input matInput placeholder="Título" [(ngModel)]="newTitle" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Prazo</mat-label>
+            <input matInput type="date" [(ngModel)]="newDue" />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput rows="3" placeholder="Descrição" [(ngModel)]="newDescription"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-flat-button color="primary" (click)="createChallenge()">Criar</button>
+        </div>
+
+        <h3>Submissões pendentes</h3>
+        <div *ngIf="pending?.length === 0">Nenhuma submissão pendente</div>
+        <div class="pending-list">
+          <mat-card *ngFor="let s of pending" class="pending-card">
+            <mat-card-header>
+              <mat-card-title>{{ s.desafioUnidade?.title || s.desafioUnidade?.title }}</mat-card-title>
+              <mat-card-subtitle>{{ s.unitid || s.unidade }} — {{ s.createdat || s.createdAt | date:'short' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="media-preview" *ngIf="s.fileurl">
+                <img *ngIf="s.fileurl && (s.fileurl.includes('.jpg') || s.fileurl.includes('.png') || s.fileurl.includes('.gif') || s.fileurl.includes('.jpeg') || s.fileurl.includes('.webp'))" [src]="s.fileurl" alt="preview" />
+                <video *ngIf="s.fileurl && !(s.fileurl.includes('.jpg') || s.fileurl.includes('.png') || s.fileurl.includes('.gif') || s.fileurl.includes('.jpeg') || s.fileurl.includes('.webp'))" [src]="s.fileurl" controls></video>
+              </div>
+              <p class="muted">{{ s.desafioUnidade?.description }}</p>
+              <p>{{ s.comment }}</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <mat-form-field appearance="outline">
+                <mat-label>Nota</mat-label>
+                <input matInput type="number" min="0" max="10" [(ngModel)]="approvalNotes[s.id]" />
+              </mat-form-field>
+              <button mat-raised-button color="primary" (click)="approve(s)">Aprovar</button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+
+      <div *ngIf="auth.hasRole('CONSELHEIRO')" class="conselheiro-panel">
+        <h3>Desafios disponíveis</h3>
+        <div *ngIf="challenges?.length === 0">Nenhum desafio encontrado</div>
+        <div class="challenge-grid">
+          <mat-card *ngFor="let c of challenges" class="challenge-card">
+            <mat-card-header>
+              <mat-card-title>{{ c.title }}</mat-card-title>
+              <mat-card-subtitle>Prazo: {{ c.dueDate | date:'shortDate' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ c.description }}</p>
+
+              <div class="submit-row">
+                <input class="file-input" type="file" (change)="onFileChange($event, c)" accept="image/*,video/*" />
+                <div class="preview" *ngIf="selectedFor[c.id]">
+                  <img *ngIf="selectedFor[c.id].isImage" [src]="selectedFor[c.id].previewUrl" alt="preview" />
+                  <video *ngIf="!selectedFor[c.id].isImage" [src]="selectedFor[c.id].previewUrl" controls></video>
+                </div>
+
+                <mat-form-field appearance="outline" class="full">
+                  <mat-label>Comentário (opcional)</mat-label>
+                  <textarea matInput rows="2" [(ngModel)]="selectedFor[c.id].comment"></textarea>
+                </mat-form-field>
+
+                <div class="submit-actions">
+                  <button mat-flat-button color="primary" [disabled]="uploadingFor[c.id]" (click)="uploadMedia(c)">
+                    <mat-spinner *ngIf="uploadingFor[c.id]" diameter="18"></mat-spinner>
+                    <span *ngIf="!uploadingFor[c.id]">Enviar arquivo</span>
+                    <span *ngIf="uploadingFor[c.id]"> Enviando...</span>
+                  </button>
+                  <button mat-stroked-button color="accent" (click)="submitForUnit(c)">Submeter sem arquivo</button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

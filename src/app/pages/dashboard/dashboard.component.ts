@@ -79,6 +79,12 @@ export class DashboardComponent {
     }
   }
 
+  goToDesafioUnidades() {
+    if (this.hasRole('ADMIN') || this.hasRole('CONSELHEIRO')) {
+      this.router.navigate(['/desafio-unidades']);
+    }
+  }
+
   goToMerito() {
     if (this.hasRole('ADMIN')) {
       this.router.navigate(['/merito']);

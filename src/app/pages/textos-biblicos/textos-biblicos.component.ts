@@ -86,53 +86,54 @@ export class TextosBiblicosComponent implements OnInit {
   }
 
   async onFileSelected(event: any, atrasadoId: number): Promise<void> {
-    const file = event.target.files[0];
+    const input = event?.target;
+    if (!input) return;
+
+    // Prevenir chamadas duplicadas se já estiver enviando
+    if (this.uploading) {
+      input.value = '';
+      return;
+    }
+
+    const file: File | undefined = input.files && input.files[0];
     if (!file) return;
 
     // Validar tipo de arquivo
     if (!file.type.startsWith('image/')) {
       this.snackBar.open('Por favor, selecione uma imagem', 'Fechar', { duration: 3000 });
-      event.target.value = '';
+      input.value = '';
       return;
     }
 
     // Validar tamanho (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       this.snackBar.open('Imagem muito grande. Máximo 5MB', 'Fechar', { duration: 3000 });
-      event.target.value = '';
+      input.value = '';
       return;
     }
 
     this.uploading = true;
+    input.disabled = true;
 
     try {
-      // Enviar arquivo para o backend, que faz o upload ao Supabase e retorna a URL assinada
       const form = new FormData();
       form.append('file', file);
       form.append('atrasadoId', String(atrasadoId));
 
-      try {
-        const resp: any = await firstValueFrom(this.textosBiblicosService.uploadTexto(form));
-        const downloadURL = resp?.url;
-        if (!downloadURL) throw new Error('Upload retornou sem URL');
+      const resp: any = await firstValueFrom(this.textosBiblicosService.uploadTexto(form));
+      const downloadURL = resp?.url;
+      if (!downloadURL) throw new Error('Upload retornou sem URL');
 
-        await firstValueFrom(this.textosBiblicosService.enviarTexto(atrasadoId, downloadURL));
+      await firstValueFrom(this.textosBiblicosService.enviarTexto(atrasadoId, downloadURL));
 
-        this.uploading = false;
-        event.target.value = ''; // Limpar input
-        this.snackBar.open('Texto enviado com sucesso! Aguarde aprovação.', 'Fechar', { duration: 3000 });
-        this.loadAll();
-      } catch (err) {
-        this.uploading = false;
-        event.target.value = ''; // Limpar input
-        this.snackBar.open('Erro ao enviar texto', 'Fechar', { duration: 3000 });
-        console.error('Upload error (via backend):', err);
-      }
-    } catch (error) {
+      this.snackBar.open('Texto enviado com sucesso! Aguarde aprovação.', 'Fechar', { duration: 3000 });
+      this.loadAll();
+    } catch (err) {
+      console.error('Upload error (via backend):', err);
+      this.snackBar.open('Erro ao enviar texto', 'Fechar', { duration: 3000 });
+    } finally {
       this.uploading = false;
-      event.target.value = ''; // Limpar input
-      this.snackBar.open('Erro ao fazer upload da imagem', 'Fechar', { duration: 3000 });
-      console.error('Upload error:', error);
+      try { input.value = ''; input.disabled = false; } catch(e) { /* ignore */ }
     }
   }
 
