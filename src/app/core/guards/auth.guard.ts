@@ -1,25 +1,20 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
   constructor(
-    private auth: Auth,
+    private authService: AuthService,
     private router: Router
   ) {}
 
-  canActivate(): Promise<boolean> {
-    return new Promise(resolve => {
-      onAuthStateChanged(this.auth, user => {
-        if (user) {
-          resolve(true);
-        } else {
-          this.router.navigate(['/login']);
-          resolve(false);
-        }
-      });
-    });
+  async canActivate(): Promise<boolean> {
+    const user = await firstValueFrom(this.authService.currentUser$);
+    if (user) return true;
+    this.router.navigate(['/login']);
+    return false;
   }
 }

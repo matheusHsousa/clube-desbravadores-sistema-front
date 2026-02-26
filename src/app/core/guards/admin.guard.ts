@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 

@@ -13,7 +13,7 @@ export class RuntimeConfigService {
 
   async load(): Promise<void> {
     try {
-      const cfg = await firstValueFrom(this.http.get<RuntimeConfig>('/assets/config.json'));
+      const cfg = await firstValueFrom(this.http.get<RuntimeConfig>('/assets/config.json', { headers: { 'x-skip-loading': '1' } }));
       if (cfg && cfg.apiBase) {
         (environment as any).apiBase = cfg.apiBase;
       }

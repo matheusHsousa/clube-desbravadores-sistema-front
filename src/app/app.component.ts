@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
+import { AfterViewInit } from '@angular/core';
 import { LoadingService } from './services/loading.service';
 import { filter } from 'rxjs/operators';
 import { trigger, transition, style, query, animate, group } from '@angular/animations';
@@ -37,17 +38,23 @@ import { trigger, transition, style, query, animate, group } from '@angular/anim
     ])
   ]
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   title = 'clube-desbravadores';
   showHeader = true;
   isLoading = true;
   loading$: Observable<boolean>;
   constructor(private router: Router, private loading: LoadingService) {
     this.loading$ = this.loading.loading$;
+  }
+
+  ngAfterViewInit(): void {
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((ev: any) => {
-      const url = ev.urlAfterRedirects || ev.url || '';
-      this.showHeader = !(url === '/' || url.startsWith('/dashboard'));
-      this.isLoading = false;
+      // atualiza após view inicial montada para evitar ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        const url = ev.urlAfterRedirects || ev.url || '';
+        this.showHeader = !(url === '/' || url.startsWith('/dashboard'));
+        this.isLoading = false;
+      });
     });
   }
 

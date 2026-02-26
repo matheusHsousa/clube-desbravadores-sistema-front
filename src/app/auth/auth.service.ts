@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, User } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, BehaviorSubject, Observable } from 'rxjs';
@@ -8,12 +7,10 @@ import { environment } from 'src/environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private isAwaitingBackend = false;
   private currentUserSubject = new BehaviorSubject<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string } | null>(null);
   public currentUser$: Observable<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string } | null> = this.currentUserSubject.asObservable();
 
   constructor(
-    private auth: Auth,
     private router: Router,
     private http: HttpClient
   ) {
@@ -58,39 +55,31 @@ export class AuthService {
     const provider = new GoogleAuthProvider();
 
     try {
-      const credential = await signInWithPopup(this.auth, provider);
-
-      const token = await credential.user.getIdToken();
-
-      this.isAwaitingBackend = true;
-
-      const user = await firstValueFrom(
-        this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
-          `${environment.apiBase}/auth/login`,
-          {}, // body vazio
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-      );
-
-      console.log('Usuário do backend:', user);
-      // atualiza estado local
-      this.currentUserSubject.next(user);
-
-      this.router.navigate(['/dashboard']);
+      const user = await firstValueFrom(this.http.get<any>(`http://localhost:4000/auth/me`, { withCredentials: true }));
+      this.currentUserSubject.next(user ?? null);
     } catch (err) {
-      console.error('Erro no login/validação backend:', err);
-    } finally {
-      this.isAwaitingBackend = false;
+      this.currentUserSubject.next(null);
     }
   }
 
-  logout(): Promise<void> {
-    return this.auth.signOut().then(() => {
-      this.currentUserSubject.next(null);
-      this.router.navigate(['/login']);
-    });
+  // Inicia fluxo OAuth server-side
+  loginGoogle() {
+    window.location.href = `${environment.apiBase}/auth/google?redirect=${encodeURIComponent(window.location.origin)}`;
   }
-  
+
+  logout(): Promise<void> {
+    // chama backend para limpar cookie de sessão
+    return firstValueFrom(this.http.post(`${environment.apiBase}/auth/logout`, {}, { withCredentials: true }))
+      .then(() => {
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
+      })
+      .catch(() => {
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/login']);
+      });
+  }
+
   hasRole(role: string): boolean {
     return !!this.currentUserSubject.value?.roles?.includes(role);
   }
