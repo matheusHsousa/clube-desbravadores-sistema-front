@@ -25,8 +25,17 @@
 
   <!-- Conteúdo -->
   <main class="content">
-    <h1>Dashboard</h1>
-    <p class="subtitle">Bem-vindo ao sistema do clube</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h1>Dashboard</h1>
+      <div *ngIf="hasRole('CONSELHEIRO')" class="unidade-points">
+        <span class="icon"><mat-icon>emoji_events</mat-icon></span>
+        <span class="text">{{ unidadePoints ?? '—' }} pts</span>
+      </div>
+    </div>
+    
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <p class="subtitle" style="margin:0">Bem-vindo ao sistema do clube</p>
+    </div>
 
     <div class="cards">
       <!-- Ordem por importância: Cadastro, Classes, Unidades, Placar, Atrasados, Textos Bíblicos, Usuários -->
@@ -58,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Desafio das Unidades (Admin + Conselheiro) -->
       <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToDesafioUnidades()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>emoji_events</mat-icon></div>
         <div>

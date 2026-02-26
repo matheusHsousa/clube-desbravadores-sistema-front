@@ -1,67 +1,490 @@
 .page-desafio-unidades {
-  padding: 16px;
+  padding: 24px 16px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f9ff, #eef1ff);
+  display: flex;
+  justify-content: center;
+  margin-top: 70px;
 
-  .admin-panel, .conselheiro-panel {
-    margin-bottom: 24px;
-    background: #fff;
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  .page-card {
+    width: 100%;
+    max-width: 1100px;
+    padding: 24px;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(32, 40, 80, 0.08);
   }
+
+  mat-card-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1c1c2e;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: #33334d;
+  }
+
+  .admin-panel,
+  .conselheiro-panel {
+    background: #fafbff;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.05);
+  }
+
+  /* FORM */
 
   .form-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
-  ul { list-style: none; padding: 0; }
-  li { padding: 8px 0; border-bottom: 1px solid #eee; }
-  .submit-row {
+  mat-form-field {
+    flex: 1;
+  }
+
+  .full {
+    width: 100%;
+  }
+
+  /* BOTÕES */
+
+  button[mat-flat-button] {
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 600;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-600));
+    box-shadow: 0 10px 30px rgba(25, 118, 210, 0.16);
+  }
+
+  /* Estilo para botão flat desabilitado */
+  button[mat-flat-button][disabled],
+  button[mat-flat-button].mat-button-disabled,
+  button[mat-flat-button].mat-mdc-button-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    /* tom mais suave para indicar estado desabilitado */
+    background: linear-gradient(90deg, rgba(200,200,200,0.18), rgba(200,200,200,0.06));
+    color: rgba(255,255,255,0.85);
+  }
+
+  button[mat-stroked-button] {
+    border-radius: 12px;
+  }
+
+  .actions {
+    margin-top: 12px;
     display: flex;
-    flex-direction: column;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* GRID DE DESAFIOS */
+
+  .created-grid,
+  .challenge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .created-card,
+  .challenge-card {
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(20, 20, 60, 0.08);
+    transition: all 0.2s ease;
+  }
+
+  /* tabela de desafios criados */
+  .created-table-wrapper {
+    margin-top: 12px;
+    background: #fff;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(20, 20, 60, 0.06);
+  }
+
+  .created-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+  }
+
+  .created-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: #444;
+    padding: 8px 12px;
+  }
+
+  .created-table td {
+    background: #fbfbff;
+    padding: 10px 12px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #222;
+  }
+
+  /* Nota (campo numérico) compacto */
+  .note-field {
+    width: 84px;
+    min-width: 64px;
+  }
+
+  .note-field .mat-form-field-wrapper,
+  .note-field .mat-form-field-flex {
+    height: 36px;
+  }
+
+  .note-field .mat-input-element {
+    padding: 6px 8px;
+    height: 22px;
+    line-height: 20px;
+    font-size: 13px;
+  }
+
+  .row-actions {
+    display: flex;
     gap: 8px;
+    justify-content: flex-end;
+  }
+
+  ::ng-deep mat-paginator {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 8px;
   }
 
-  .preview img, .preview video {
-    max-width: 320px;
-    max-height: 240px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+  /* keep created challenges table responsive via horizontal scroll like pendentes */
+  .created-table-wrapper .table-container {
+    overflow-x: auto;
   }
 
-  .media-preview img, .media-preview video {
-    max-width: 420px;
-    max-height: 320px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    display: block;
-    margin: 8px 0;
+  .created-card:hover,
+  .challenge-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(20, 20, 60, 0.12);
   }
 
-  .page-card { padding: 12px; }
+  .card-title {
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+  }
 
-  .pending-list { display: grid; gap: 12px; }
-  .pending-card { background: #fafafa; }
+  .card-actions-bottom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
 
-  .challenge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
-  .challenge-card { display: flex; flex-direction: column; }
+  .card-meta {
+    font-size: 13px;
+    color: #7a7a9d;
+    margin-top: 6px;
+  }
 
-  .submit-row { display: flex; flex-direction: column; gap: 8px; }
-  .file-input { border: none; }
+  .card-desc {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #444;
+  }
 
-  .submit-actions { display: flex; gap: 8px; align-items: center; }
+  /* Conselheiro (Desafios disponíveis) - inputs e botões */
+  .conselheiro-panel {
+    .challenge-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-  .full { width: 100%; }
+    /* estilizar input file para parecer um botão amigável */
+    .file-input {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(124, 58, 237, 0.12), rgba(155, 92, 246, 0.06));
+      color: #5b3ecb;
+      border: 1px dashed rgba(92, 61, 199, 0.14);
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
 
-  .muted { color: #666; font-size: 0.95rem; }
+    .file-input:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(25, 118, 210, 0.06);
+    }
 
-  .quick-submit {
-    background: transparent;
-    border: 1px dashed #ccc;
+    /* form field dentro do card */
+    mat-form-field.full {
+      background: #fbfbff;
+      border-radius: 10px;
+    }
+
+    .submit-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* destaque do botão enviar */
+    .submit-actions button[mat-flat-button] {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-600));
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(25, 118, 210, 0.12);
+      font-weight: 700;
+    }
+
+    .submit-actions button[mat-stroked-button] {
+      padding: 7px 12px;
+      border-radius: 10px;
+      color: #5b3ecb;
+      border-color: rgba(124, 58, 237, 0.14);
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .preview img,
+    .preview video {
+      height: 90px;
+      width: 90px;     
+      border-radius: 10px;
+      object-fit: cover;
+    }
+  }
+
+  /* custom file label/button */
+  .choose-file {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(25, 118, 210, 0.08), rgba(25, 118, 210, 0.04));
+    color: var(--color-primary-700, var(--color-primary));
+    cursor: pointer;
+    font-weight: 700;
+    border: 1px solid rgba(25, 118, 210, 0.08);
+  }
+
+  .selected-filename {
+    margin-left: 10px;
+    color: #555;
+    font-size: 13px;
+  }
+
+  /* responsive: place file + comment + actions in a row on wide screens */
+  @media (min-width: 880px) {
+    .submit-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .submit-row .full {
+      flex: 1;
+    }
+
+    .submit-actions {
+      margin-left: auto;
+    }
+  }
+
+  /* Melhorias para telas grandes: desafios disponíveis */
+  @media (min-width: 1200px) {
+    .challenge-grid {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      align-items: start;
+      justify-items: center;
+    }
+
+    .challenge-card {
+      max-width: 360px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .submit-row { gap: 14px; }
+
+    .submit-row .preview img, .submit-row .preview video {
+      max-width: 220px;
+      max-height: 140px;
+      border-radius: 10px;
+    }
+  }
+
+  .file-hint {
+    font-size: 12px;
+    color: #7a7a9d;
+    margin-top: 6px;
+  }
+
+  .selected-filename.muted {
+    color: #9aa0b4;
+    font-style: italic;
+    margin-left: 8px;
+  }
+
+  .choose-file:focus {
+    outline: none;
+    box-shadow: 0 6px 20px rgba(25, 118, 210, 0.14);
+    transform: translateY(-2px);
+  }
+
+  /* TABELA RESPONSIVA (Pendentes) */
+
+  .section-card {
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(20, 20, 60, 0.08);
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  /* status table for conselheiro */
+  .status-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .status-table th,
+  .status-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(20,20,60,0.04);
+  }
+
+  .status-badge {
+    display: inline-block;
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #222;
+  }
+
+  .status-badge.approved {
+    background: linear-gradient(90deg, rgba(76,175,80,0.12), rgba(56,142,60,0.08));
+    border: 1px solid rgba(76,175,80,0.18);
+    color: #2e7d32;
+  }
+
+  .status-badge.pending {
+    background: linear-gradient(90deg, rgba(255,235,59,0.12), rgba(255,238,88,0.06));
+    border: 1px solid rgba(255,193,7,0.14);
+    color: #b28700;
+  }
+
+  th {
+    font-weight: 600;
+    font-size: 13px;
+    color: #666;
+  }
+
+  td {
+    font-size: 14px;
+  }
+
+  /* THUMBNAIL */
+
+  .thumbnail {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .thumbnail:hover {
+    transform: scale(1.05);
+  }
+
+  /* OVERLAY */
+
+  .image-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 30, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .image-overlay .preview {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 20px;
+  }
+
+  .image-overlay .close-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: #fff;
     cursor: pointer;
   }
+
+  /* MOBILE FIRST */
+
+  @media (max-width: 768px) {
+    .page-card {
+      padding: 16px;
+      border-radius: 18px;
+    }
+
+    .admin-panel,
+    .conselheiro-panel {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .created-grid,
+    .challenge-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .thumbnail {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-paginator-range-label {
+  margin: 0 !important;
 }

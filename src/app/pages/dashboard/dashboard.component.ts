@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Router } from '@angular/router';
+import { StatsService } from 'src/app/services/stats.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,11 +12,32 @@ export class DashboardComponent {
   currentUser: any = null;
   availableTabs: Array<{ key: string; label: string; role: string }> = [];
   selectedTab: string | null = null;
+  unidadePoints: number | null = null;
+  unidadePointsLoading = false;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private stats: StatsService) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateTabs();
+      if (this.hasRole('CONSELHEIRO') && user?.unidade) {
+        this.loadUnidadePoints(user.unidade);
+      } else {
+        this.unidadePoints = null;
+      }
+    });
+  }
+
+  private loadUnidadePoints(unidade: string) {
+    this.unidadePointsLoading = true;
+    this.stats.getConselheiroPoints(unidade).subscribe({
+      next: (res: any) => {
+        this.unidadePoints = Number(res?.total ?? 0);
+        this.unidadePointsLoading = false;
+      },
+      error: () => {
+        this.unidadePoints = null;
+        this.unidadePointsLoading = false;
+      }
     });
   }
 

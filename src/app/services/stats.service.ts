@@ -46,6 +46,12 @@ export class StatsService {
     return this.http.get(`${this.base}/admin/progresso-classes`);
   }
 
+  getAdminUnitsPoints(start?: string, end?: string): Observable<any> {
+    let url = `${this.base}/admin/units-points`;
+    if (start) url += `?start=${start}`;
+    if (end) url += `${start ? '&' : '?'}end=${end}`;
+    return this.http.get(url);
+  }
   getConselheiropontuacaoSemanal(unidade: string, weeks = 12): Observable<any> {
     return this.http.get(`${this.base}/conselheiro/pontuacao-semanal?unidade=${unidade}&weeks=${weeks}`);
   }

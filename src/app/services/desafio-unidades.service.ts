@@ -17,12 +17,24 @@ export class DesafioUnidadesService {
     return this.http.post(`${this.base}`, payload);
   }
 
+  update(id: number, payload: any): Observable<any> {
+    return this.http.put(`${this.base}/${id}`, payload);
+  }
+
+  delete(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/${id}`);
+  }
+
   submit(challengeId: number, payload: any): Observable<any> {
     return this.http.post(`${this.base}/${challengeId}/submit`, payload);
   }
 
   pendingSubmissions(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/submissions/pending`);
+  }
+  
+  rejectSubmission(submissionId: number): Observable<any> {
+    return this.http.post(`${this.base}/submissions/${submissionId}/reject`, {});
   }
   
   uploadMedia(form: FormData): Observable<any> {

@@ -46,6 +46,20 @@
         </google-chart>
       </div>
 
+      <div *ngIf="unitChartData.length" class="grafico-box">
+        <h3 class="grafico-title">Comparação de Pontos por Unidade</h3>
+
+        <google-chart
+          [type]="unitChartType"
+          [data]="unitChartData"
+          [columns]="unitChartColumns"
+          [options]="unitChartOptions"
+          [width]="chartWidth"
+          [height]="chartHeight"
+          [dynamicResize]="true">
+        </google-chart>
+      </div>
+
       <div class="grafico-legenda" style="min-width: 280px; height: 302px;">
           <div *ngFor="let item of classeChartLegenda" class="legenda-item">
             <span class="legenda-classe">{{ item.classe }}:</span>

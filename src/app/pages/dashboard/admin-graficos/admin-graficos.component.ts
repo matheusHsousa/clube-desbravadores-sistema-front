@@ -14,16 +14,19 @@ export class AdminGraficosComponent implements OnInit {
     lineChartType: ChartType = ChartType.LineChart;
     topChartType: ChartType = ChartType.BarChart;
     classeChartType: ChartType = ChartType.BarChart;
+    unitChartType: ChartType = ChartType.BarChart;
     chartWidth = 500;
     chartHeight = 300;
     lineChartColumns: string[] = ['Unidade', 'Pontos'];
     topChartColumns: string[] = ['Desbravador', 'Pontos'];
     classeChartColumns: string[] = ['Classe', 'Progresso (%)'];
+    unitChartColumns: string[] = ['Unidade', 'Pontos'];
 
     // Google Charts
     lineChartData: any[] = [];
     topChartData: any[] = [];
     classeChartData: any[] = [];
+    unitChartData: any[] = [];
     classeChartLegenda: Array<{ classe: string; legenda: string }> = [];
     lineChartOptions: any = {
         legend: { position: 'bottom' },
@@ -37,6 +40,12 @@ export class AdminGraficosComponent implements OnInit {
         legend: { position: 'none' },
         hAxis: { title: 'Pontos', minValue: 0 },
         vAxis: { title: 'Desbravador' },
+        chartArea: { width: '70%', height: '68%' }
+    };
+    unitChartOptions: any = {
+        legend: { position: 'none' },
+        hAxis: { title: 'Pontos', minValue: 0 },
+        vAxis: { title: 'Unidade' },
         chartArea: { width: '70%', height: '68%' }
     };
     classeChartOptions: any = {
@@ -67,6 +76,9 @@ export class AdminGraficosComponent implements OnInit {
                 .sort((a, b) => b[1] - a[1])
                 .map(([unidade, total]) => [unidade, total]);
 
+            // mesma fonte de dados para gráfico de comparação por unidade (barras)
+            this.unitChartData = this.lineChartData.slice();
+
             this.topChartData = this.pts
                 .map((p: any) => [p?.desbravador?.name ?? 'Sem nome', Number(p?.total ?? 0)])
                 .sort((a, b) => b[1] - a[1])
@@ -75,6 +87,14 @@ export class AdminGraficosComponent implements OnInit {
             this.loaded = true;
         });
 
+            // Request aggregated points per unit from backend (more accurate + includes unit_points)
+            this.stats.getAdminUnitsPoints().subscribe((res: any[]) => {
+                this.unitChartData = (res ?? [])
+                    .map((u: any) => [u.unidade || 'Sem Unidade', Number(u.total || 0)])
+                    .sort((a: any, b: any) => b[1] - a[1]);
+            }, () => {
+                // keep previous client-side fallback if the endpoint fails
+            });
         this.stats.getAdminProgressoClasses().subscribe(res => {
             this.classeChartData = (res?.data ?? [])
                 .map((item: any) => [item.classe, item.progresso]);
