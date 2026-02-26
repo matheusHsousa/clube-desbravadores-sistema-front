@@ -25,7 +25,7 @@
         </div>
 
         <h3 style="margin-top:16px">Desafios criados</h3>
-        <div *ngIf="(challenges?.length || 0) === 0">Nenhum desafio criado</div>
+        <div *ngIf="(challenges.length || 0) === 0">Nenhum desafio criado</div>
         <div *ngIf="(challenges.length || 0) > 0">
           <div class="created-table-wrapper">
             <div class="table-container">
@@ -154,8 +154,8 @@
         <h3>Desafios disponíveis</h3>
         <div class="meus-desafios" style="margin-bottom:12px;">
           <h4>Meus Desafios</h4>
-          <div *ngIf="(mySubmissions?.length || 0) === 0" class="empty">Nenhuma submissão enviada</div>
-          <div *ngIf="(mySubmissions?.length || 0) > 0" class="table-container">
+          <div *ngIf="(mySubmissions.length || 0) === 0" class="empty">Nenhuma submissão enviada</div>
+          <div *ngIf="(mySubmissions.length || 0) > 0" class="table-container">
             <table class="status-table">
               <thead>
                 <tr>

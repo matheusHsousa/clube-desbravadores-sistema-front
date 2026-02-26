@@ -1,22 +1,22 @@
+<!-- SVG filter: converte pixels brancos em transparentes -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+  <filter id="remove-white">
+    <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 -1 -1 1 1" />
+  </filter>
+</svg>
+
 <div class="login-wrapper">
-  <div class="login-card">
+  <div class="login-card card transition-all scale-pop">
+    <img src="assets/logo-sistema.jpg" alt="Logo do sistema" class="logo remove-white">
 
-    <img
-      src="assets/logo-sr.png"
-      alt="Soldados do Rei"
-      class="logo"
-    />
+    <h1>Bem-vindo Desbrava System</h1>
+    <p class="subtitle">Acesse o painel do seu clube com sua conta</p>
 
-    <h1>Bem-vindo</h1>
-    <p class="subtitle">Acesse o sistema do clube</p>
-
-    <button
-      class="login-btn"
-      (click)="loginGoogle()"
-      [disabled]="loading">
-
-      <img src="assets/google-icon.jfif" alt="" class="icon">
-
+    <button class="login-btn btn-primary" (click)="loginGoogle()" [disabled]="loading" aria-label="Entrar com Google">
+      <span class="btn-content">
+        <img src="assets/google-icon.jfif" alt="Google" class="icon">
+        <span>Entrar com Google</span>
+      </span>
     </button>
 
   </div>

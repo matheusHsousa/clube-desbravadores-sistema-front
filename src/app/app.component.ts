@@ -46,7 +46,7 @@ export class AppComponent {
     this.loading$ = this.loading.loading$;
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((ev: any) => {
       const url = ev.urlAfterRedirects || ev.url || '';
-      this.showHeader = !(url === '/' || url.startsWith('/dashboard'));
+      this.showHeader = !(url === '/' || url.startsWith('/dashboard') || url.startsWith('/login'));
       this.isLoading = false;
     });
   }

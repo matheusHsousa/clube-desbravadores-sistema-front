@@ -25,15 +25,15 @@
 
   <!-- Conteúdo -->
   <main class="content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h1>Dashboard</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1>Painel</h1>
       <div *ngIf="hasRole('CONSELHEIRO')" class="unidade-points">
         <span class="icon"><mat-icon>emoji_events</mat-icon></span>
         <span class="text">{{ unidadePoints ?? '—' }} pts</span>
       </div>
     </div>
     
-    <div style="display:flex; align-items:center; gap:1rem;">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom: 1rem;">
       <p class="subtitle" style="margin:0">Bem-vindo ao sistema do clube</p>
     </div>
 
