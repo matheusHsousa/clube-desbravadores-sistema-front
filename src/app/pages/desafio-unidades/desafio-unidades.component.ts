@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DesafioUnidadesService } from 'src/app/services/desafio-unidades.service';
@@ -47,7 +48,7 @@ export class DesafioUnidadesComponent implements OnInit, AfterViewInit {
   selectedMediaIsVideo = false;
   selectedMediaAutoMuted = false;
 
-  constructor(private svc: DesafioUnidadesService, public auth: AuthService, private cd: ChangeDetectorRef) {}
+  constructor(private svc: DesafioUnidadesService, public auth: AuthService, private cd: ChangeDetectorRef, private snackBar: MatSnackBar) {}
 
   ngAfterViewInit() {
     // assign paginator if already available
@@ -125,11 +126,19 @@ export class DesafioUnidadesComponent implements OnInit, AfterViewInit {
   }
 
   async saveChallenge() {
+    // client-side validation: require title and description
+    const title = String(this.newTitle ?? '').trim();
+    const description = String(this.newDescription ?? '').trim();
+    if (!title || !description) {
+      this.snackBar.open('Preencha Título e Descrição antes de salvar', 'Fechar', { duration: 4000 });
+      return;
+    }
+
     try {
       const payload = {
-        title: this.newTitle,
-        description: this.newDescription,
-        dueDate: this.newDue
+        title,
+        description,
+        dueDate: this.newDue || null,
       };
 
       if (this.editingId) {
@@ -145,6 +154,7 @@ export class DesafioUnidadesComponent implements OnInit, AfterViewInit {
       await this.reloadAll();
     } catch (err) {
       console.error('Erro ao salvar desafio', err);
+      this.snackBar.open('Erro ao salvar desafio', 'Fechar', { duration: 5000 });
     }
   }
 
