@@ -11,6 +11,13 @@
         <div *ngIf="allUsers?.length; else emptyAll" class="list">
             <article *ngFor="let u of allUsers" class="card" [class.editing]="editingUserId === u.id">
                 <div class="card-row">
+                    <div class="user-left">
+                        <img *ngIf="u | avatarUrl as avatar; else initials" [src]="avatar" class="user-avatar" alt="avatar">
+                        <ng-template #initials>
+                            <div class="avatar-placeholder">{{ u?.name?.charAt(0) || 'U' }}</div>
+                        </ng-template>
+                    </div>
+
                     <div class="meta">
                         <div class="email">{{ u.email }}</div>
                         <div class="name">{{ u.name || '—' }}</div>

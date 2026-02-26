@@ -9,9 +9,9 @@
     <div class="header-right">
         <ng-container *ngIf="currentUser; else loginBtn">
             <button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-button" aria-label="Usuário">
-                <img *ngIf="currentUser.avatarUrl; else iconFallback" [src]="currentUser.avatarUrl" class="avatar-img" alt="avatar">
+                <img *ngIf="currentUser | avatarUrl as avatar; else iconFallback" [src]="avatar" class="avatar-img" alt="avatar">
                 <ng-template #iconFallback>
-                    <mat-icon>account_circle</mat-icon>
+                    <div class="avatar-placeholder">{{ currentUser?.name?.charAt(0) || 'U' }}</div>
                 </ng-template>
             </button>
 

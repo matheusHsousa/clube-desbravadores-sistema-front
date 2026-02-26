@@ -49,6 +49,18 @@
   box-shadow: 0 6px 18px rgba(16,24,40,0.06);
 }
 
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dfe7ff;
+  color: #0b3b73;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
 .spacer { flex:1 1 auto; }
 
 @media (max-width:600px) {

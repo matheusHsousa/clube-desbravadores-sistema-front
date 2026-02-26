@@ -52,6 +52,7 @@ import { DesbravadorClasseCardComponent } from './pages/desbravador-classe-card/
 import { CartoesClassesComponent } from './pages/cartoes-classes/cartoes-classes.component';
 import { AtrasadosComponent } from './pages/atrasados/atrasados.component';
 import { HeaderComponent } from './shared/components/header/header.component';
+import { AvatarUrlPipe } from './shared/pipes/avatar-url.pipe';
 import { AdminGraficosComponent } from './pages/dashboard/admin-graficos/admin-graficos.component';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { ConselheiroGraficosComponent } from './pages/dashboard/conselheiro-graficos/conselheiro-graficos.component';
@@ -86,6 +87,7 @@ const firebaseProviders = firebaseConfig ? [
     , ConfirmDialogComponent,
     MeritoPageComponent,
     CadastroDesbravadoresComponent,
+    AvatarUrlPipe,
     DesafioUnidadesComponent,
     MeritoTopComponent
   ],

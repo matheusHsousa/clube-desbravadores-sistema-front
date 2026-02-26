@@ -48,6 +48,18 @@
   display: inline-block;
 }
 
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dfe7ff;
+  color: #0b3b73;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
 .profile-btn {
   background: #f0f0f0;
   border: 1px solid #e0e0e0;

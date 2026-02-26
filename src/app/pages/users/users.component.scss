@@ -16,6 +16,32 @@
     gap: 10px;
 }
 
+.user-left {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.user-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    background: #dfe7ff;
+    color: #0b3b73;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
 .card {
     background: #fff;
     padding: 10px;

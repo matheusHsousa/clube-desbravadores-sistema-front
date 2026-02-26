@@ -14,7 +14,7 @@
       <mat-card-content>
         <!-- Avatar -->
         <div class="avatar-section">
-          <img *ngIf="currentUser?.avatarUrl; else noAvatar" [src]="currentUser.avatarUrl" alt="Avatar do usuário" class="avatar-preview">
+          <img *ngIf="currentUser | avatarUrl as avatar; else noAvatar" [src]="avatar" alt="Avatar do usuário" class="avatar-preview">
           <ng-template #noAvatar>
             <div class="avatar-placeholder" aria-hidden="true">{{ currentUser?.name?.charAt(0) || 'U' }}</div>
           </ng-template>
