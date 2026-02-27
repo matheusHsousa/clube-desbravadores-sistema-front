@@ -5,6 +5,9 @@ import { Subject, forkJoin, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DesbravadoresService } from 'src/app/services/desbravadores.service';
 import { PointsService } from 'src/app/services/points.service';
+import { TextosBiblicosService } from 'src/app/services/textos-biblicos.service';
+import { AtrasadosService } from 'src/app/services/atrasados.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-cantinho-unidade',
@@ -23,6 +26,8 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   pointsMap: Record<number, number> = {};
   pointsLoading = false;
   rowUpdatedId: number | null = null;
+  public textoBiblicoDevedor: boolean = false;
+  public textoBiblicoMessage: string = 'Por dever texto bíblico deduzirá 20 pontos';
   // opções de pontuação por critério
   presenceOptions = [10, 0];
   pontualidadeOptions = [5, 0];
@@ -38,7 +43,10 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private desbravadoresService: DesbravadoresService,
-    private pointsService: PointsService
+    private pointsService: PointsService,
+    private snackBar: MatSnackBar,
+    private textosBiblicosService: TextosBiblicosService,
+    private atrasadosService: AtrasadosService
   ) {
     this.form = this.fb.group({
       sundayDate: [null, Validators.required],
@@ -86,13 +94,45 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
           });
       });
 
-    // quando selecionar um desbravador, buscar saldo
+    // quando selecionar um desbravador, buscar saldo e verificar se deve Texto Bíblico
     this.form.get('desbravadorId')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((id: number) => {
       this.currentPoints = null;
       if (!id) return;
       this.pointsService.getByDesbravador(id).pipe(takeUntil(this.destroy$)).subscribe(p => {
         this.currentPoints = p;
       });
+
+      
+    
+        // verificar se o desbravador está como devedor de texto bíblico
+        const isAdmin = Array.isArray(this.currentUser?.roles) && this.currentUser.roles.includes('ADMIN');
+        if (isAdmin) {
+          // admins get full access to atrasados via atrasados/historico -> filtrar por desbravadorId
+          this.atrasadosService.listarHistorico({ desbravadorId: id }).pipe(takeUntil(this.destroy$)).subscribe(rows => {
+            const deve = Array.isArray(rows) && rows.length > 0;
+            this.textoBiblicoDevedor = deve;
+            this.form.controls['textoBiblico'].setValue(deve ? -20 : 0, { emitEvent: false });
+            this.form.controls['textoBiblico'].disable({ emitEvent: false });
+            if (deve) this.snackBar.open(this.textoBiblicoMessage, 'OK', { duration: 5000 });
+          }, err => {
+            this.textoBiblicoDevedor = false;
+            this.form.controls['textoBiblico'].setValue(0, { emitEvent: false });
+            this.form.controls['textoBiblico'].disable({ emitEvent: false });
+          });
+        } else {
+          // non-admins: use meus-atrasados which respects unit/roles
+          this.textosBiblicosService.buscarMeusAtrasados(this.currentUser?.id, id).pipe(takeUntil(this.destroy$)).subscribe(list => {
+            const deve = Array.isArray(list) && list.length > 0;
+            this.textoBiblicoDevedor = deve;
+            this.form.controls['textoBiblico'].setValue(deve ? -20 : 0, { emitEvent: false });
+            this.form.controls['textoBiblico'].disable({ emitEvent: false });
+            if (deve) this.snackBar.open(this.textoBiblicoMessage, 'OK', { duration: 5000 });
+          }, err => {
+            this.textoBiblicoDevedor = false;
+            this.form.controls['textoBiblico'].setValue(0, { emitEvent: false });
+            this.form.controls['textoBiblico'].disable({ emitEvent: false });
+          });
+        }
     });
   }
 
@@ -201,7 +241,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     this.successMessage = '';
 
     try {
-      const payload = this.form.value;
+      const payload = this.form.getRawValue();
       payload.total = this.total;
       // chamar backend de pontos para ajustar saldo
       const desbravadorId = Number(payload.desbravadorId);
@@ -224,6 +264,11 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
         this.refreshPoints();
       });
       this.form.reset();
+      // garantir que o campo textoBiblico volte a um estado padrão (habilitado e 0)
+      try {
+        this.form.controls['textoBiblico'].enable({ emitEvent: false });
+        this.form.controls['textoBiblico'].setValue(0, { emitEvent: false });
+      } catch (e) { /* ignore if control missing */ }
     } catch (err) {
       console.error(err);
     } finally {
@@ -233,7 +278,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 
   // calcula a soma atual com base nos valores do formulário
   get total(): number {
-    const v = this.form.value || {};
+    const v = (this.form.getRawValue && this.form.getRawValue()) || this.form.value || {};
     const keys = ['presence','pontualidade','uniforme','material','classe','classeBiblica','espEquipe','disciplina','textoBiblico'];
     return keys.reduce((acc, k) => {
       const val = Number(v[k]);

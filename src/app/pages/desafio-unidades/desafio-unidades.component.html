@@ -19,7 +19,7 @@
           <textarea matInput rows="3" placeholder="Descrição" [(ngModel)]="newDescription"></textarea>
         </mat-form-field>
         <div class="actions">
-          <button mat-flat-button color="primary" (click)="saveChallenge()" [disabled]="!(newTitle?.trim() && newDescription?.trim())">{{ editingId ? 'Salvar' : 'Criar'
+          <button mat-flat-button color="primary" (click)="saveChallenge()" [disabled]="!(newTitle.trim() && newDescription.trim())">{{ editingId ? 'Salvar' : 'Criar'
             }}</button>
           <button *ngIf="editingId" mat-stroked-button color="warn" (click)="cancelEdit()">Cancelar</button>
         </div>
