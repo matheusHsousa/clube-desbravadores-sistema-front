@@ -8,6 +8,7 @@ import { PointsService } from 'src/app/services/points.service';
 import { TextosBiblicosService } from 'src/app/services/textos-biblicos.service';
 import { AtrasadosService } from 'src/app/services/atrasados.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PushService } from 'src/app/services/push.service';
 
 @Component({
   selector: 'app-cantinho-unidade',
@@ -46,7 +47,8 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     private pointsService: PointsService,
     private snackBar: MatSnackBar,
     private textosBiblicosService: TextosBiblicosService,
-    private atrasadosService: AtrasadosService
+    private atrasadosService: AtrasadosService,
+    private pushService: PushService
   ) {
     this.form = this.fb.group({
       sundayDate: [null, Validators.required],
@@ -72,6 +74,16 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
+        // inscrever conselheiros para receber push notifications (PWA)
+        try {
+          const roles = user?.roles;
+          if (Array.isArray(roles) && roles.includes('CONSELHEIRO')) {
+            const userId = user?.id != null ? String(user.id) : null;
+            this.pushService.subscribe(userId, 'CONSELHEIRO');
+          }
+        } catch (e) {
+          console.warn('Push subscribe attempt failed', e);
+        }
         if (!user?.unidade) {
           this.desbravadores = [];
           return;
