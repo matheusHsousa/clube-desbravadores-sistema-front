@@ -11,8 +11,8 @@
 
 .users-panel .list,
 .desb-panel .list {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
@@ -53,6 +53,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 100%;
 }
 
 .meta .email {
@@ -256,6 +257,37 @@ body {
     border: none;
     background: var(--primary);
     color: #000000
+}
+
+/* Truncar emails longos com elipse e mostrar tooltip com o email completo */
+.email.ellipsis {
+    display: block;
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* adaptar em telas pequenas */
+@media (max-width: 600px) {
+    .email.ellipsis {
+        max-width: 160px;
+    }
+}
+
+/* Truncar nomes longos com elipse */
+.name.ellipsis {
+    display: block;
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+    .name.ellipsis {
+        max-width: 160px;
+    }
 }
 
 .form-actions button[type="button"] {

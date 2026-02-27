@@ -18,12 +18,12 @@
                         </ng-template>
                     </div>
 
-                    <div class="meta">
-                        <div class="email">{{ u.email }}</div>
-                        <div class="name">{{ u.name || '—' }}</div>
+                    <div class="meta" >
+                                <div class="email ellipsis" [title]="u.email">{{ u.email }}</div>
+                        <div class="name ellipsis" [title]="u.name">{{ u.name || '—' }}</div>
                         <div class="roles">
                             <span *ngFor="let r of u.roles" class="badge role-{{ r }}">
-                                {{ r }}
+                                {{ abbrRole(r) }}
                             </span>
                         </div>
                     </div>
@@ -153,8 +153,8 @@
             <article *ngFor="let i of instrutores" class="card small-card">
                 <div class="card-row">
                     <div class="meta">
-                        <div class="email">{{ i.email }}</div>
-                        <div class="name">{{ i.name || '—' }}</div>
+                                <div class="email ellipsis" [title]="i.email">{{ i.email }}</div>
+                        <div class="name ellipsis" [title]="i.name">{{ i.name || '—' }}</div>
                     </div>
                 </div>
             </article>
@@ -173,8 +173,8 @@
             <article *ngFor="let c of conselheiros" class="card small-card">
                 <div class="card-row">
                     <div class="meta">
-                        <div class="email">{{ c.email }}</div>
-                        <div class="name">{{ c.name || '—' }}</div>
+                                <div class="email ellipsis" [title]="c.email">{{ c.email }}</div>
+                        <div class="name ellipsis" [title]="c.name">{{ c.name || '—' }}</div>
                     </div>
                 </div>
             </article>

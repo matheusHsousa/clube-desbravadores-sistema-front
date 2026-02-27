@@ -40,6 +40,24 @@ export class UsersComponent implements OnInit {
     classes = ['AMIGO', 'COMPANHEIRO', 'PESQUISADOR', 'PIONEIRO', 'EXCURSIONISTA', 'GUIA'];
     rolesOptions = ['CONSELHEIRO', 'INSTRUTOR', 'ADMIN', 'SECRETARIA'];
 
+    // retornar abreviação curta para exibir em badges
+    abbrRole(role: string) {
+        if (!role) return '';
+        const r = String(role).toUpperCase();
+        switch (r) {
+            case 'ADMIN':
+                return 'ADM';
+            case 'INSTRUTOR':
+                return 'INST';
+            case 'CONSELHEIRO':
+                return 'CONS';
+            case 'SECRETARIA':
+                return 'SECRE';
+            default:
+                return r.length <= 4 ? r : r.slice(0, 4);
+        }
+    }
+
     constructor(
             private usersService: UsersService,
             private authService: AuthService,
