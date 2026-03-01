@@ -196,6 +196,13 @@ export class UsersComponent implements OnInit {
             if (!this.userForm.roles.includes(role)) this.userForm.roles.push(role);
         } else {
             this.userForm.roles = this.userForm.roles.filter((r: string) => r !== role);
+            // se remover o cargo instrutor/conselheiro, limpar seleção correspondente
+            if (role === 'INSTRUTOR') {
+                this.userForm.classe = null;
+            }
+            if (role === 'CONSELHEIRO') {
+                this.userForm.unidade = null;
+            }
         }
     }
 

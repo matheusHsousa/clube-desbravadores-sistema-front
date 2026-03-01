@@ -41,10 +41,21 @@
                         <input id="input-name-{{ u.id }}" [(ngModel)]="userForm.name" name="name_{{ u.id }}" />
                     </label>
 
+                    <div class="roles-checks">
+                        <label *ngFor="let r of rolesOptions">
+                            <input
+                                type="checkbox"
+                                [checked]="userForm.roles?.includes(r)"
+                                (change)="onRoleChange(r, $event)"
+                            />
+                            {{ r }}
+                        </label>
+                    </div>
+
                     <div class="row">
                         <label>
                             Unidade
-                            <select [(ngModel)]="userForm.unidade" name="unidade_{{ u.id }}">
+                            <select [(ngModel)]="userForm.unidade" name="unidade_{{ u.id }}" [disabled]="!userForm.roles?.includes('CONSELHEIRO')">
                                 <option [ngValue]="null">—</option>
                                 <option *ngFor="let un of unidades" [value]="un">
                                     {{ un }}
@@ -54,30 +65,13 @@
 
                         <label>
                             Classe
-                            <select [(ngModel)]="userForm.classe" name="classe_{{ u.id }}">
+                            <select [(ngModel)]="userForm.classe" name="classe_{{ u.id }}" [disabled]="!userForm.roles?.includes('INSTRUTOR')">
                                 <option [ngValue]="null">—</option>
                                 <option *ngFor="let cl of classes" [value]="cl">
                                     {{ cl }}
                                 </option>
                             </select>
                         </label>
-                    </div>
-
-                    <div class="roles-checks">
-                        <label *ngFor="let r of rolesOptions">
-                            <input
-                                type="checkbox"
-                                [checked]="userForm.roles?.includes(r)"
-                                (change)="onRoleChange(r, $event)"
-                                [disabled]="(r === 'INSTRUTOR' && !userForm.classe) || (r === 'CONSELHEIRO' && !userForm.unidade)"
-                                [title]="(r === 'INSTRUTOR' && !userForm.classe) ? 'Defina uma classe antes de marcar Instrutor' : (r === 'CONSELHEIRO' && !userForm.unidade) ? 'Defina uma unidade antes de marcar Conselheiro' : ''"
-                            />
-                            {{ r }}
-                        </label>
-                        <div class="roles-hint">
-                            <small *ngIf="!userForm.classe">Instrutor requer uma classe.</small>
-                            <small *ngIf="!userForm.unidade">Conselheiro requer uma unidade.</small>
-                        </div>
                     </div>
 
                     <div class="form-actions">
