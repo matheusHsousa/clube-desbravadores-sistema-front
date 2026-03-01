@@ -4,7 +4,7 @@ import { Directive, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDes
   selector: '[appPullToRefresh]'
 })
 export class PullToRefreshDirective implements OnInit, OnDestroy {
-  @Input() threshold = 80; // pixels to trigger
+  @Input() threshold = 100; // pixels to trigger (requere puxar mais)
   @Input() disabled = false;
   @Output() refresh = new EventEmitter<void>();
 
@@ -65,8 +65,12 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
   onTouchStart(ev: TouchEvent) {
     if (this.disabled) return;
     if (!this.isMobile()) return;
-    if ((this.el.nativeElement as HTMLElement).scrollTop > 0) return;
-    this.startY = ev.touches[0].clientY;
+    const scrollTop = (this.el.nativeElement as HTMLElement).scrollTop ?? document.scrollingElement?.scrollTop ?? window.pageYOffset ?? 0;
+    const startY = ev.touches[0].clientY;
+    const TOP_ZONE = 60; // only start pull when touch begins near top of screen
+    if (scrollTop > 0) return;
+    if (startY > TOP_ZONE) return;
+    this.startY = startY;
     this.pulling = true;
   }
 
@@ -75,7 +79,8 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
     if (!this.pulling || this.disabled) return;
     const currentY = ev.touches[0].clientY;
     const delta = Math.max(0, currentY - this.startY);
-    if (delta > 0) {
+    const SLOP = 8; // ignore tiny moves
+    if (delta > SLOP) {
       ev.preventDefault();
       const h = Math.min(delta / 2, this.threshold + 20);
       this.renderer.setStyle(this.indicator, 'height', `${h}px`);
