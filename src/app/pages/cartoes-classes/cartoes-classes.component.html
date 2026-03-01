@@ -1,7 +1,7 @@
 <div class="cartoes-classes">
     <header class="cc-header">
         <div class="title-wrap">
-            <h1 class="page-title">Cartões de Classe {{ classes[0]?.nome }}</h1>
+            <h1 class="page-title">Cartões de Classe {{ selectedClassName }}</h1>
             <p class="page-sub">Registre o que foi ministrado e quem cumpriu cada requisito.</p>
         </div>
     </header>
@@ -34,18 +34,12 @@
                 <p>Selecione os desbravadores que receberam a instrução:</p>
                 <div *ngFor="let d of desbravadores">
                     <label>
-                        <input type="checkbox" (change)="toggleDesbravadorSelection(req.id, d.id)" /> {{ d.name }}
+                        <input type="checkbox" (change)="toggleDesbravadorSelection(req.id, d.id)" [checked]="selectedDesbravadoresForReq[req.id]?.has(d.id)" /> {{ d.name }}
                     </label>
                 </div>
                 <div class="actions">
-                    <button *ngIf="!req.progresso?.length" (click)="marcar(req.id)"
-                        [disabled]="isProcessingForReq[req.id]">{{ isProcessingForReq[req.id] ? 'Salvando...' :
-                        'Confirmar'
-                        }}</button>
-                    <button *ngIf="req.progresso?.length" (click)="desmarcar(req.id)"
-                        [disabled]="isProcessingForReq[req.id]">{{ isProcessingForReq[req.id] ? 'Removendo...' :
-                        'Confirmar
-                        remoção' }}</button>
+                    <button *ngIf="!req.progresso?.length" (click)="marcar(req.id)" [disabled]="isProcessingForReq[req.id]">{{ isProcessingForReq[req.id] ? 'Salvando...' : 'Confirmar' }}</button>
+                    <button *ngIf="req.progresso?.length" (click)="saveChanges(req.id)" [disabled]="isProcessingForReq[req.id]">{{ isProcessingForReq[req.id] ? 'Processando...' : 'Salvar alterações' }}</button>
                 </div>
                 <div *ngIf="messageForReq[req.id]" class="req-message">
                     <small>{{ messageForReq[req.id] }}</small>

@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { PullToRefreshDirective } from './shared/directives/pull-to-refresh.directive';
 
 // Angular Material modules
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -87,6 +88,7 @@ const firebaseProviders = firebaseConfig ? [
     , ConfirmDialogComponent,
     MeritoPageComponent,
     CadastroDesbravadoresComponent,
+    PullToRefreshDirective,
     AvatarUrlPipe,
     DesafioUnidadesComponent,
     MeritoTopComponent

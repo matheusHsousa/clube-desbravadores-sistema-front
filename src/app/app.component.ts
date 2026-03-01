@@ -54,4 +54,8 @@ export class AppComponent {
   prepareRoute(outlet: RouterOutlet) {
     return outlet && outlet.activatedRouteData && outlet.activatedRouteData['order'];
   }
+  onPullRefresh() {
+    // reload the current route to simulate native pull-to-refresh
+    window.location.reload();
+  }
 }

@@ -9,6 +9,10 @@ import { environment } from 'src/environments/environments';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isAwaitingBackend = false;
+  private awaitingBackendSubject = new BehaviorSubject<boolean>(false);
+  public awaitingBackend$: Observable<boolean> = this.awaitingBackendSubject.asObservable();
+  private authInitializedSubject = new BehaviorSubject<boolean>(false);
+  public authInitialized$: Observable<boolean> = this.authInitializedSubject.asObservable();
   private currentUserSubject = new BehaviorSubject<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string } | null>(null);
   public currentUser$: Observable<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string } | null> = this.currentUserSubject.asObservable();
 
@@ -27,6 +31,7 @@ export class AuthService {
         if (!this.currentUserSubject.value) {
           try {
             this.isAwaitingBackend = true;
+            this.awaitingBackendSubject.next(true);
             const token = await user.getIdToken();
             const backendUser = await firstValueFrom(
               this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
@@ -40,16 +45,17 @@ export class AuthService {
             console.error('Erro ao buscar usuário no backend em onAuthStateChanged:', err);
           } finally {
             this.isAwaitingBackend = false;
+            this.awaitingBackendSubject.next(false);
           }
+        // sinaliza que o evento inicial de auth já foi processado
+        if (!this.authInitializedSubject.value) this.authInitializedSubject.next(true);
         }
 
-        // evita redirecionamento caso estejamos aguardando a validação no backend
-        if (!this.isAwaitingBackend) {
-          this.router.navigate(['/dashboard']);
-        }
+        // não realiza redirecionamento automático aqui para preservar a rota atual ao recarregar
       } else {
         this.currentUserSubject.next(null);
         this.router.navigate(['/login']);
+        if (!this.authInitializedSubject.value) this.authInitializedSubject.next(true);
       }
     });
   }
@@ -63,6 +69,7 @@ export class AuthService {
       const token = await credential.user.getIdToken();
 
       this.isAwaitingBackend = true;
+      this.awaitingBackendSubject.next(true);
 
       const user = await firstValueFrom(
         this.http.post<{ id?: number; name?: string; email: string; roles: string[]; unidade?: string; classe?: string }>(
@@ -81,6 +88,7 @@ export class AuthService {
       console.error('Erro no login/validação backend:', err);
     } finally {
       this.isAwaitingBackend = false;
+      this.awaitingBackendSubject.next(false);
     }
   }
 
