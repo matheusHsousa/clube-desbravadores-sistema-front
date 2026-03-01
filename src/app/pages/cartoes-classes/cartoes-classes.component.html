@@ -34,7 +34,7 @@
                 <p>Selecione os desbravadores que receberam a instrução:</p>
                 <div *ngFor="let d of desbravadores">
                     <label>
-                        <input type="checkbox" (change)="toggleDesbravadorSelection(req.id, d.id)" [checked]="selectedDesbravadoresForReq[req.id]?.has(d.id)" /> {{ d.name }}
+                        <input type="checkbox" (change)="toggleDesbravadorSelection(req.id, d.id)" [checked]="selectedDesbravadoresForReq[req.id].has(d.id)" /> {{ d.name }}
                     </label>
                 </div>
                 <div class="actions">
