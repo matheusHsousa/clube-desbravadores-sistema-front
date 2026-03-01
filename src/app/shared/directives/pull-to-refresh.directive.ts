@@ -43,6 +43,7 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
   @HostListener('touchstart', ['$event'])
   onTouchStart(ev: TouchEvent) {
     if (this.disabled) return;
+    if (!this.isMobile()) return;
     if ((this.el.nativeElement as HTMLElement).scrollTop > 0) return;
     this.startY = ev.touches[0].clientY;
     this.pulling = true;
@@ -67,8 +68,35 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
     this.renderer.setStyle(this.indicator, 'height', `0px`);
     this.pulling = false;
     if (h >= this.threshold) {
-      // zone run to ensure change detection
-      this.zone.run(() => this.refresh.emit());
+      // provide haptic feedback on supported devices
+      try {
+        if (navigator && 'vibrate' in navigator) {
+          // pattern: small buzz
+          (navigator as any).vibrate([50, 30, 50]);
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // show a brief loading state before emitting
+      this.renderer.setStyle(this.indicator, 'height', `${this.threshold}px`);
+      this.renderer.setStyle(this.indicator, 'display', 'flex');
+      const prevText = this.indicator.textContent;
+      this.indicator.textContent = 'Atualizando...';
+      setTimeout(() => {
+        // restore and emit refresh
+        this.indicator.textContent = prevText || 'Puxe para atualizar';
+        this.renderer.setStyle(this.indicator, 'height', `0px`);
+        this.zone.run(() => this.refresh.emit());
+      }, 650);
     }
+  }
+
+  private isMobile(): boolean {
+    // ativa apenas em dispositivos touch / telas pequenas
+    if (typeof window === 'undefined') return false;
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const smallScreen = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    return !!(hasTouch && smallScreen);
   }
 }
