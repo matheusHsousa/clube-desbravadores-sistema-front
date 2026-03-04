@@ -28,6 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 import { AppComponent } from './app.component';
@@ -123,6 +124,7 @@ const firebaseProviders = firebaseConfig ? [
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatCheckboxModule,
     ...firebaseProviders,
     GoogleChartsModule
   ],

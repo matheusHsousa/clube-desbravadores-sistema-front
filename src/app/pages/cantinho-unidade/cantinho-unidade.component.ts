@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ViewChildren, QueryList, ElementRef, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Subject, forkJoin, of } from 'rxjs';
@@ -8,6 +8,7 @@ import { PointsService } from 'src/app/services/points.service';
 import { TextosBiblicosService } from 'src/app/services/textos-biblicos.service';
 import { AtrasadosService } from 'src/app/services/atrasados.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { PushService } from 'src/app/services/push.service';
 
 @Component({
@@ -53,10 +54,13 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   ];
   quickScores: Record<string, Record<number, number>> = {};
   textoBiblicoDisabled: Record<number, boolean> = {};
+  absentMap: Record<number, boolean> = {};
+  debtors: any[] = [];
   submittingQuick = false;
   stepperOrientation: 'horizontal' | 'vertical' = 'horizontal';
   @ViewChildren('stepFirstInput', { read: ElementRef }) stepFirstInputs?: QueryList<ElementRef>;
   @ViewChild('stepperContainer', { read: ElementRef }) stepperHeaderElement?: ElementRef;
+  @ViewChild('debtorsDialog') debtorsDialog!: TemplateRef<any>;
   activeStepIndex = 0;
 
   constructor(
@@ -68,6 +72,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     private textosBiblicosService: TextosBiblicosService,
     private atrasadosService: AtrasadosService,
     private pushService: PushService,
+    private dialog: MatDialog,
     private host: ElementRef
   ) {
     this.form = this.fb.group({
@@ -84,6 +89,18 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
       disciplina: [null, Validators.required],
       textoBiblico: [null, Validators.required]
     });
+  }
+
+  // retorna lista de desbravadores não marcados como ausentes
+  get presentDesbravadores(): any[] {
+    if (!this.desbravadores) return [];
+    return this.desbravadores.filter(d => !this.absentMap?.[d.id]);
+  }
+
+  setAbsent(id: number, value: boolean) {
+    try {
+      this.absentMap = { ...this.absentMap, [Number(id)]: !!value };
+    } catch (e) { /* ignore */ }
   }
 
 
@@ -121,6 +138,8 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
               console.log('Desbravadores da unidade:', list);
               // carregar pontos para a tabela
               this.loadPointsForDesbravadores(list);
+              // carregar devedores de texto bíblico restritos à unidade
+              this.loadDebtorsForUnit(list);
             },
             error: err => {
               console.error(err);
@@ -169,6 +188,26 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
           });
         }
     });
+  }
+
+  loadDebtorsForUnit(list: any[]) {
+    try {
+      this.textosBiblicosService.listarDevedores().pipe(takeUntil(this.destroy$)).subscribe(all => {
+        const ids = new Set((list || []).map(d => Number(d.id)));
+        this.debtors = Array.isArray(all) ? all.filter(a => a && a.tipo === 'desbravador' && ids.has(Number(a.pessoa?.id))) : [];
+      }, err => {
+        this.debtors = [];
+      });
+    } catch (e) {
+      this.debtors = [];
+    }
+  }
+
+  openDebtorsDialog() {
+    try {
+      if (!this.debtors || !this.debtors.length) return;
+      this.dialog.open(this.debtorsDialog, { width: '360px' });
+    } catch (e) { /* ignore */ }
   }
 
   @HostListener('window:resize')
@@ -334,6 +373,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   // total calculado para um desbravador a partir das marcações rápidas
   getQuickTotal(desbId: number): number {
     if (!this.quickScores || !this.desbravadores) return 0;
+    if (this.absentMap?.[Number(desbId)]) return 0;
     let sum = 0;
     for (const key of Object.keys(this.quickScores)) {
       sum += Number(this.quickScores[key]?.[Number(desbId)] ?? 0);
@@ -373,6 +413,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   private initQuickScores(list: any[]) {
     this.quickScores = {};
     this.textoBiblicoDisabled = {};
+    this.absentMap = {};
     for (const item of this.quickItems) {
       this.quickScores[item.key] = {};
       for (const d of list) {
@@ -380,6 +421,8 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
         this.quickScores[item.key][id] = 0;
         // default: textoBiblico selection will be controlled automatically
         if (item.key === 'textoBiblico') this.textoBiblicoDisabled[id] = true;
+        // default: not absent
+        this.absentMap[id] = false;
       }
     }
 
@@ -449,11 +492,16 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 
   async saveQuickMarks() {
     if (!this.desbravadores || !this.desbravadores.length) return;
+    if (!this.form?.value?.sundayDate) {
+      this.snackBar.open('Selecione uma data (domingo) antes de salvar', 'OK', { duration: 3000 });
+      return;
+    }
     this.submittingQuick = true;
     this.successMessage = '';
     try {
       const adjustments: Array<Promise<any>> = [];
       for (const d of this.desbravadores) {
+        if (this.absentMap?.[Number(d.id)]) continue;
         const id = Number(d.id);
         let total = 0;
         for (const item of this.quickItems) {
@@ -472,6 +520,20 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
       await Promise.all(adjustments);
       this.successMessage = 'Marcações salvas com sucesso.';
       this.refreshPoints();
+
+      // depois de salvar, reiniciar o stepper como estado inicial
+      try {
+        this.initQuickScores(this.desbravadores || []);
+        this.activeStepIndex = 0;
+        // limpar ausentes
+        this.absentMap = {};
+        // scroll e foco para o início do stepper
+        setTimeout(() => {
+          try { this.scrollToActiveStepHeader(); } catch (e) { /* ignore */ }
+          try { this.scrollToActiveStepContent(); } catch (e) { /* ignore */ }
+          try { this.focusFirstInActiveStep(); } catch (e) { /* ignore */ }
+        }, 50);
+      } catch (e) { /* ignore reset errors */ }
     } catch (err) {
       console.error('Erro ao salvar marcações rápidas', err);
     } finally {
@@ -493,7 +555,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setSundayByOffset(offsetWeeks: number) {
+  public setSundayByOffset(offsetWeeks: number) {
     const currentVal: Date | null = this.form.value.sundayDate;
     let d = currentVal ? new Date(currentVal) : new Date();
     // ajustar para o domingo mais próximo (anterior) se não for domingo
@@ -545,8 +607,9 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   }
 
   // usado pelo MatDatepicker para permitir somente domingos
+  // quando `d` é nulo, retornar true permite navegação sem bloquear o picker
   onlySundays = (d: Date | null): boolean => {
-    if (!d) return false;
+    if (!d) return true;
     return d.getDay() === 0;
   }
 

@@ -1,11 +1,16 @@
 <div class="cantinho-unidade">
   <header>
-    <h1>Cantinho da Unidade</h1>
+    <h1 style="display:inline-flex;align-items:center;gap:8px;">Cantinho da Unidade
+      <button *ngIf="debtors?.length" mat-icon-button color="warn" aria-label="Devedores de texto bíblico" (click)="openDebtorsDialog()" style="margin-left:8px;">
+        <mat-icon>warning</mat-icon>
+      </button>
+    </h1>
   </header>
-
   <section class="panel">
     <h2>Tabela de Pontos da Unidade</h2>
     <mat-card>
+
+      
       <mat-card-content>
         <div class="table-header">
           <div class="title">Pontos por Desbravador</div>
@@ -32,7 +37,24 @@
 
   <section class="panel">
     <h2>Inserir Pontuação</h2>
-    <div class="custom-stepper">
+    <form [formGroup]="form" class="form">
+      <div class="absent-select" style="margin-bottom:10px;">
+        <label>Marcar faltantes (não lançar pontos)</label>
+        <div class="absent-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+          <mat-checkbox *ngFor="let d of desbravadores" [checked]="absentMap[d.id]" (change)="setAbsent(d.id, $event.checked)" name="absent-{{d.id}}">{{ d.name }}</mat-checkbox>
+        </div>
+      </div>
+      <div class="sunday-picker-row" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <mat-form-field appearance="outline" class="sunday-picker" style="flex:1;">
+          <mat-label>Data (domingo)</mat-label>
+          <input matInput [matDatepicker]="sundayPicker" formControlName="sundayDate" [matDatepickerFilter]="onlySundays" (dateChange)="onSundayChange($event)" placeholder="Selecione um domingo" [min]="sundays[0]" [max]="sundays[sundays.length - 1]">
+          <mat-hint>Apenas domingos disponíveis</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="sundayPicker"></mat-datepicker-toggle>
+          <mat-datepicker #sundayPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="custom-stepper">
       <div #stepperContainer class="stepper-headers" style="display:flex;gap:8px;overflow:auto;padding:8px 0;">
         <ng-container *ngFor="let item of quickItems; let i = index">
           <button *ngIf="i === activeStepIndex || i === (activeStepIndex + 1)" type="button" (click)="goToStep(i)" [class.active]="i===activeStepIndex" [attr.aria-current]="i===activeStepIndex ? 'step' : null" [attr.data-step]="i">
@@ -63,7 +85,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr *ngFor="let d of desbravadores; let idx = index">
+                        <tr *ngFor="let d of presentDesbravadores; let idx = index">
                           <td>{{ d.name }}</td>
                           <td>
                             <div class="small-select">
@@ -101,8 +123,8 @@
                         <th>Saldo Atual</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr *ngFor="let d of desbravadores">
+                      <tbody>
+                        <tr *ngFor="let d of presentDesbravadores">
                         <td>{{ d.name }}</td>
                         <td>{{ getQuickTotal(d.id) }}</td>
                         <td>{{ (pointsMap[d.id] ?? 0) + getQuickTotal(d.id) }}</td>
@@ -113,7 +135,7 @@
               </mat-card>
               <div style="display:flex; justify-content:space-between; margin-top:12px;">
                 <button mat-button (click)="previousStep()">Voltar</button>
-                <button mat-raised-button color="primary" (click)="saveQuickMarks()" [disabled]="submittingQuick">Salvar tudo</button>
+                <button mat-raised-button color="primary" (click)="saveQuickMarks()" [disabled]="submittingQuick || !form.value.sundayDate">Salvar tudo</button>
               </div>
             </section>
           </div>
@@ -124,7 +146,23 @@
         </ng-template>
       </div>
     </div>
+    </form>
   </section>
 
   <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+  <ng-template #debtorsDialog>
+    <h2 mat-dialog-title>Devedores de Texto Bíblico</h2>
+    <mat-dialog-content>
+      <p *ngIf="!debtors || debtors.length === 0">Nenhum devedor na sua unidade.</p>
+      <mat-list *ngIf="debtors && debtors.length">
+        <mat-list-item *ngFor="let d of debtors">
+          <div mat-line>{{ d.pessoa?.name || d.pessoa?.nome || 'Sem nome' }}</div>
+          <div mat-line class="secondary">Pendentes: {{ d.textosPendentes }}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Fechar</button>
+    </mat-dialog-actions>
+  </ng-template>
 </div>
