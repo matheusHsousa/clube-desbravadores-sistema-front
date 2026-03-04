@@ -31,68 +31,98 @@
   </section>
 
   <section class="panel">
-    <h2>Registrar pontuação</h2>
+    <h2>Inserir Pontuação</h2>
+    <div class="custom-stepper">
+      <div #stepperContainer class="stepper-headers" style="display:flex;gap:8px;overflow:auto;padding:8px 0;">
+        <ng-container *ngFor="let item of quickItems; let i = index">
+          <button *ngIf="i === activeStepIndex || i === (activeStepIndex + 1)" type="button" (click)="goToStep(i)" [class.active]="i===activeStepIndex" [attr.aria-current]="i===activeStepIndex ? 'step' : null" [attr.data-step]="i">
+            <span class="step-index">{{ i + 1 }}</span>
+            <span class="step-label" *ngIf="i === activeStepIndex">{{ item.title }}</span>
+          </button>
+        </ng-container>
 
-    <div class="list">
-      <article class="card">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-          <div class="row">
-            <mat-form-field appearance="outline" class="full" *ngIf="desbravadores.length > 0">
-              <mat-label>Desbravador</mat-label>
-              <mat-select formControlName="desbravadorId">
-                <mat-option *ngFor="let d of desbravadores" [value]="d.id || d.uid || d.name">{{ d.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+        <!-- Resumo button: show if it's current or the next one -->
+        <button *ngIf="(quickItems.length === activeStepIndex) || (quickItems.length === activeStepIndex + 1)" type="button" (click)="goToStep(quickItems.length)" [class.active]="activeStepIndex===quickItems.length" [attr.aria-current]="activeStepIndex===quickItems.length ? 'step' : null" [attr.data-step]="quickItems.length">
+          <span class="step-index">{{ quickItems.length + 1 }}</span>
+          <span class="step-label" *ngIf="quickItems.length === activeStepIndex">Resumo</span>
+        </button>
+      </div>
 
-          <div class="sunday-picker">
-            <mat-form-field appearance="outline">
-              <mat-label>Selecione um domingo</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="sundayDate" [min]="sundays[0]" [max]="sundays[sundays.length-1]" [matDatepickerFilter]="onlySundays" (dateChange)="onSundayChange($event)">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-          </div>
-
-
-          <label>Pontuação</label>
-          <mat-card class="criteria-card">
-            <mat-card-content>
-              <div class="criteria-grid">
-                <mat-card class="criterion-card" *ngFor="let crit of [
-                  {key: 'presence', title: 'Presença', opts: presenceOptions},
-                  {key: 'pontualidade', title: 'Pontualidade', opts: pontualidadeOptions},
-                  {key: 'uniforme', title: 'Uniforme (lenço)', opts: uniformeOptions},
-                  {key: 'material', title: 'Material (Bíb./Caderno/Estojo)', opts: materialOptions},
-                  {key: 'classe', title: 'Classe em dia', opts: classeOptions},
-                  {key: 'classeBiblica', title: 'Classe Bíblica', opts: classeBiblicaOptions},
-                  {key: 'espEquipe', title: 'Espírito de Equipe', opts: espEquipeOptions},
-                  {key: 'disciplina', title: 'Disciplina', opts: disciplinaOptions},
-                  {key: 'textoBiblico', title: 'Texto Bíblico', opts: textoBiblicoOptions}
-                ]">
-                  <mat-card-title class="criterion-title">{{ crit.title }}</mat-card-title>
-                  <mat-card-content>
-                    <mat-radio-group [formControlName]="crit.key" class="radio-group">
-                      <mat-radio-button *ngFor="let opt of crit.opts" [value]="opt">{{ opt }}</mat-radio-button>
-                    </mat-radio-group>
+      <div class="stepper-content">
+        <ng-container *ngIf="desbravadores?.length; else noDesb">
+          <ng-container *ngFor="let item of quickItems; let first = first; let last = last; let i = index">
+            <div *ngIf="activeStepIndex === i" class="step-panel">
+              <section class="panel">
+                <mat-card style="box-shadow: none; padding: 0px;">
+                  <mat-card-content style="padding: 0px;">
+                    <table class="quick-table" style="width: 100%;">
+                      <thead>
+                        <tr>
+                          <th>Nome</th>
+                          <th>Pontuação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let d of desbravadores; let idx = index">
+                          <td>{{ d.name }}</td>
+                          <td>
+                            <div class="small-select">
+                              <mat-radio-group *ngIf="idx === 0" #stepFirstInput [value]="getQuickScore(item.key, d.id)" (change)="setQuickScore(item.key, d.id, $event.value)" class="radio-inline" [attr.name]="item.key + '-' + d.id" [disabled]="item.key === 'textoBiblico'">
+                                <mat-radio-button *ngFor="let opt of getOptions(item.key)" class="radio-option" [value]="opt">{{ opt }}</mat-radio-button>
+                              </mat-radio-group>
+                              <mat-radio-group *ngIf="idx !== 0" [value]="getQuickScore(item.key, d.id)" (change)="setQuickScore(item.key, d.id, $event.value)" class="radio-inline" [attr.name]="item.key + '-' + d.id" [disabled]="item.key === 'textoBiblico'">
+                                <mat-radio-button *ngFor="let opt of getOptions(item.key)" class="radio-option" [value]="opt">{{ opt }}</mat-radio-button>
+                              </mat-radio-group>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </mat-card-content>
                 </mat-card>
+              </section>
+              <div style="display:flex; justify-content:space-between; margin-top:12px;">
+                <button mat-button (click)="previousStep()" [disabled]="i===0">Voltar</button>
+                <button mat-button (click)="nextStep()">{{ last ? 'Resumo' : 'Próximo' }}</button>
               </div>
-              <mat-divider></mat-divider>
-              <div class="total-row">
-                <div class="total-label">Soma</div>
-                <div class="total-value">{{ total }}</div>
+            </div>
+          </ng-container>
+
+          <div *ngIf="activeStepIndex === quickItems.length" class="step-panel">
+            <section class="panel">
+              <h2>Resumo</h2>
+              <mat-card>
+                <mat-card-content>
+                  <table class="points-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Adição</th>
+                        <th>Saldo Atual</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let d of desbravadores">
+                        <td>{{ d.name }}</td>
+                        <td>{{ getQuickTotal(d.id) }}</td>
+                        <td>{{ (pointsMap[d.id] ?? 0) + getQuickTotal(d.id) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </mat-card-content>
+              </mat-card>
+              <div style="display:flex; justify-content:space-between; margin-top:12px;">
+                <button mat-button (click)="previousStep()">Voltar</button>
+                <button mat-raised-button color="primary" (click)="saveQuickMarks()" [disabled]="submittingQuick">Salvar tudo</button>
               </div>
-            </mat-card-content>
-          </mat-card>
-
-          <div *ngIf="form.invalid && (form.touched || form.dirty)" class="error">Preencha todos os critérios.</div>
-
-          <div class="form-actions" style="margin-top:12px; display:flex; justify-content:flex-end;">
-            <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || submitting">Enviar</button>
+            </section>
           </div>
-        </form>
-      </article>
+
+        </ng-container>
+        <ng-template #noDesb>
+          <div class="empty">Nenhum desbravador encontrado para marcação.</div>
+        </ng-template>
+      </div>
     </div>
   </section>
 

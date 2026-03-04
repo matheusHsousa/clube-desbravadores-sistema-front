@@ -27,6 +27,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatStepperModule } from '@angular/material/stepper';
 
 
 import { AppComponent } from './app.component';
@@ -115,6 +116,7 @@ const firebaseProviders = firebaseConfig ? [
     MatToolbarModule,
     MatSnackBarModule,
     MatTableModule,
+    MatStepperModule,
     MatPaginatorModule,
     MatSortModule,
     MatMenuModule,

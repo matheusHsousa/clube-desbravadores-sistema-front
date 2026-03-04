@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Subject, forkJoin, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, map, catchError } from 'rxjs/operators';
 import { DesbravadoresService } from 'src/app/services/desbravadores.service';
 import { PointsService } from 'src/app/services/points.service';
 import { TextosBiblicosService } from 'src/app/services/textos-biblicos.service';
@@ -24,7 +24,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   currentPoints: any = null;
   currentUser: any = null;
-  pointsMap: Record<number, number> = {};
+  pointsMap: Record<number, number | undefined> = {};
   pointsLoading = false;
   rowUpdatedId: number | null = null;
   public textoBiblicoDevedor: boolean = false;
@@ -40,6 +40,25 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   disciplinaOptions = [10, 5, 0];
   textoBiblicoOptions = [0, -20];
 
+  // marcação rápida: itens do dia e pontuações por desbravador
+  quickItems: Array<{ key: string; title: string }> = [
+    { key: 'presence', title: 'Presença' },
+    { key: 'pontualidade', title: 'Pontualidade' },
+    { key: 'uniforme', title: 'Uniforme' },
+    { key: 'material', title: 'Material' },
+    { key: 'classe', title: 'Classe' },
+    { key: 'espEquipe', title: 'Espírito de Equipe' },
+    { key: 'disciplina', title: 'Disciplina' },
+    { key: 'textoBiblico', title: 'Texto Bíblico' }
+  ];
+  quickScores: Record<string, Record<number, number>> = {};
+  textoBiblicoDisabled: Record<number, boolean> = {};
+  submittingQuick = false;
+  stepperOrientation: 'horizontal' | 'vertical' = 'horizontal';
+  @ViewChildren('stepFirstInput', { read: ElementRef }) stepFirstInputs?: QueryList<ElementRef>;
+  @ViewChild('stepperContainer', { read: ElementRef }) stepperHeaderElement?: ElementRef;
+  activeStepIndex = 0;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -48,7 +67,8 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private textosBiblicosService: TextosBiblicosService,
     private atrasadosService: AtrasadosService,
-    private pushService: PushService
+    private pushService: PushService,
+    private host: ElementRef
   ) {
     this.form = this.fb.group({
       sundayDate: [null, Validators.required],
@@ -66,7 +86,9 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     });
   }
 
+
   ngOnInit(): void {
+    this.updateStepperOrientation();
     const year = new Date().getFullYear();
     this.sundays = this.getSundaysOfYear(year);
 
@@ -95,6 +117,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
           .subscribe({
             next: list => {
               this.desbravadores = list;
+                  this.initQuickScores(list);
               console.log('Desbravadores da unidade:', list);
               // carregar pontos para a tabela
               this.loadPointsForDesbravadores(list);
@@ -148,6 +171,176 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
     });
   }
 
+  @HostListener('window:resize')
+  updateStepperOrientation() {
+    try {
+      this.stepperOrientation = (window && window.innerWidth && window.innerWidth < 600) ? 'vertical' : 'horizontal';
+    } catch (e) {
+      this.stepperOrientation = 'horizontal';
+    }
+  }
+
+  // navegação controlada para focar primeiro input do próximo passo
+  nextStep() {
+    try {
+      const max = (this.quickItems?.length ?? 0);
+      if (this.activeStepIndex < max) this.activeStepIndex++;
+      // agendar o scroll do header após a view atualizar (microtask pode ser cedo)
+      setTimeout(() => this.scrollToActiveStepHeader(), 0);
+      // garantir também que o container geral dos headers esteja visível na viewport
+      setTimeout(() => {
+        try {
+          const el = document.querySelector('.stepper-headers') as HTMLElement | null;
+          if (el && typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          }
+        } catch (e) { /* ignore */ }
+      }, 50);
+      // scroll para o conteúdo e foco um pouco depois para deixar a animação do header visível
+      setTimeout(() => {
+        this.scrollToActiveStepContent();
+        this.focusFirstInActiveStep();
+      }, 180);
+    } catch (e) { console.warn(e); }
+  }
+
+  previousStep() {
+    try {
+      if (this.activeStepIndex > 0) this.activeStepIndex--;
+      // agendar scroll do header após mudança de view
+      setTimeout(() => this.scrollToActiveStepHeader(), 0);
+      // garantir também que o container geral dos headers esteja visível na viewport
+      setTimeout(() => {
+        try {
+          const el = document.querySelector('.stepper-headers') as HTMLElement | null;
+          if (el && typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          }
+        } catch (e) { /* ignore */ }
+      }, 50);
+      setTimeout(() => {
+        this.scrollToActiveStepContent();
+        this.focusFirstInActiveStep();
+      }, 180);
+    } catch (e) { console.warn(e); }
+  }
+
+  onStepChange(event: any) {
+    // kept for compatibility (no-op with custom stepper)
+  }
+
+  goToStep(i: number) {
+    const max = (this.quickItems?.length ?? 0);
+    if (i < 0) i = 0;
+    if (i > max) i = max;
+    this.activeStepIndex = i;
+    // agendar rolagem do header após a view atualizar e depois focar o conteúdo
+    setTimeout(() => this.scrollToActiveStepHeader(), 0);
+    setTimeout(() => {
+      this.scrollToActiveStepContent();
+      this.focusFirstInActiveStep();
+    }, 180);
+  }
+
+  private scrollToActiveStepContent() {
+    try {
+      const idx = this.activeStepIndex ?? 0;
+      const host = this.host?.nativeElement as HTMLElement | null;
+      const panels = host ? host.querySelectorAll('.step-panel') as NodeListOf<HTMLElement> : document.querySelectorAll('.step-panel') as NodeListOf<HTMLElement>;
+      const panel = panels?.[idx] as HTMLElement | undefined;
+      if (panel) {
+        const rect = panel.getBoundingClientRect();
+        const headerOffset = 72; // main header height/padding
+        const target = rect.top + window.pageYOffset - headerOffset - 8;
+        window.scrollTo({ top: target, behavior: 'smooth' });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  private scrollToActiveStepHeader() {
+    try {
+      const idx = this.activeStepIndex ?? 0;
+      // usar o container de headers customizado quando disponível
+      const headerContainer = (this.stepperHeaderElement?.nativeElement as HTMLElement | null)
+        || (this.host?.nativeElement && (this.host.nativeElement.querySelector('.stepper-headers, .mat-horizontal-stepper-header, .mat-mdc-stepper-header, .mat-stepper-header') as HTMLElement))
+        || document.querySelector('.stepper-headers, .mat-horizontal-stepper-header, .mat-mdc-stepper-header, .mat-stepper-header') as HTMLElement;
+
+      if (!headerContainer) return;
+      // procurar botão correspondente ao passo ativo através do atributo data-step
+      const selector = `[data-step="${idx}"]`;
+      const header = headerContainer.querySelector(selector) as HTMLElement | null;
+      if (header) {
+        try {
+          const container = headerContainer as HTMLElement;
+          const headerCenter = header.offsetLeft + (header.offsetWidth / 2);
+          const targetScrollLeft = Math.max(0, headerCenter - (container.clientWidth / 2));
+          if (typeof container.scrollTo === 'function') {
+            container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+            return;
+          }
+          if (typeof header.scrollIntoView === 'function') {
+            header.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        } catch (e) { /* ignore */ }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  private focusFirstInActiveStep() {
+    try {
+      const idx = this.activeStepIndex ?? 0;
+      const arr = this.stepFirstInputs?.toArray() ?? [];
+      const elRef = arr[idx];
+      if (elRef && elRef.nativeElement) {
+        try {
+          const el = elRef.nativeElement as HTMLElement;
+          if (typeof el.focus === 'function') {
+            el.focus();
+            return;
+          }
+          // tentar focar o primeiro elemento interno
+          const inner = el.querySelector<HTMLElement>('select, input, button, [tabindex]');
+          if (inner && typeof inner.focus === 'function') {
+            inner.focus();
+            return;
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      // fallback genérico: buscar primeiro elemento focusable dentro do passo ativo
+      try {
+        const host = this.host?.nativeElement as HTMLElement | null;
+        if (host) {
+          const steps = host.querySelectorAll('.step-panel, .mat-step, .mat-stepper-content');
+          const panel = steps?.[idx] as HTMLElement | undefined;
+          const root = panel ?? host.querySelector('.stepper-content') ?? host;
+          if (root) {
+            const first = root.querySelector<HTMLElement>('select, input, textarea, button, [tabindex]');
+            if (first && typeof first.focus === 'function') {
+              first.focus();
+              return;
+            }
+          }
+        }
+      } catch (e) { /* ignore */ }
+
+    } catch (e) {
+      // não bloquear execução por falha no foco
+    }
+  }
+
+  // total calculado para um desbravador a partir das marcações rápidas
+  getQuickTotal(desbId: number): number {
+    if (!this.quickScores || !this.desbravadores) return 0;
+    let sum = 0;
+    for (const key of Object.keys(this.quickScores)) {
+      sum += Number(this.quickScores[key]?.[Number(desbId)] ?? 0);
+    }
+    return sum;
+  }
+
   private loadPointsForDesbravadores(list: any[]) {
     if (!list || !list.length) {
       this.pointsMap = {};
@@ -174,6 +367,116 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   refreshPoints() {
     if (!this.desbravadores || !this.desbravadores.length) return;
     this.loadPointsForDesbravadores(this.desbravadores);
+  }
+
+  // inicializa estrutura para marcação rápida
+  private initQuickScores(list: any[]) {
+    this.quickScores = {};
+    this.textoBiblicoDisabled = {};
+    for (const item of this.quickItems) {
+      this.quickScores[item.key] = {};
+      for (const d of list) {
+        const id = Number(d.id);
+        this.quickScores[item.key][id] = 0;
+        // default: textoBiblico selection will be controlled automatically
+        if (item.key === 'textoBiblico') this.textoBiblicoDisabled[id] = true;
+      }
+    }
+
+    // determine who owes texto bíblico and set -20/0 automatically
+    try {
+      const isAdmin = Array.isArray(this.currentUser?.roles) && this.currentUser.roles.includes('ADMIN');
+      const observables = list.map(d => {
+        const id = Number(d.id);
+        if (isAdmin) {
+          return this.atrasadosService.listarHistorico({ desbravadorId: id }).pipe(
+            map((rows: any[]) => ({ id, deve: Array.isArray(rows) && rows.length > 0 })),
+            catchError(() => of({ id, deve: false }))
+          );
+        }
+        return this.textosBiblicosService.buscarMeusAtrasados(this.currentUser?.id, id).pipe(
+          map((rows: any[]) => ({ id, deve: Array.isArray(rows) && rows.length > 0 })),
+          catchError(() => of({ id, deve: false }))
+        );
+      });
+
+      forkJoin(observables).pipe(takeUntil(this.destroy$)).subscribe((results: any[]) => {
+        for (const r of results) {
+          const id = Number(r.id);
+          const deve = !!r.deve;
+          if (!this.quickScores['textoBiblico']) this.quickScores['textoBiblico'] = {};
+          this.quickScores['textoBiblico'][id] = deve ? -20 : 0;
+          // ensure selection cannot be changed
+          this.textoBiblicoDisabled[id] = true;
+        }
+      }, err => {
+        // on error, fallback: set 0 and keep disabled
+        for (const d of list) {
+          const id = Number(d.id);
+          if (!this.quickScores['textoBiblico']) this.quickScores['textoBiblico'] = {};
+          this.quickScores['textoBiblico'][id] = 0;
+          this.textoBiblicoDisabled[id] = true;
+        }
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  getQuickScore(itemKey: string, desbId: number): number {
+    return this.quickScores?.[itemKey]?.[Number(desbId)] ?? 0;
+  }
+
+  setQuickScore(itemKey: string, desbId: number, value: number) {
+    if (!this.quickScores[itemKey]) this.quickScores[itemKey] = {};
+    this.quickScores[itemKey][Number(desbId)] = Number(value) || 0;
+  }
+
+  getOptions(itemKey: string): number[] {
+    switch (itemKey) {
+      case 'presence': return this.presenceOptions;
+      case 'pontualidade': return this.pontualidadeOptions;
+      case 'uniforme': return this.uniformeOptions;
+      case 'material': return this.materialOptions;
+      case 'classe': return this.classeOptions;
+      case 'classeBiblica': return this.classeBiblicaOptions;
+      case 'espEquipe': return this.espEquipeOptions;
+      case 'disciplina': return this.disciplinaOptions;
+      case 'textoBiblico': return this.textoBiblicoOptions;
+      default: return [10, 5, 0];
+    }
+  }
+
+  async saveQuickMarks() {
+    if (!this.desbravadores || !this.desbravadores.length) return;
+    this.submittingQuick = true;
+    this.successMessage = '';
+    try {
+      const adjustments: Array<Promise<any>> = [];
+      for (const d of this.desbravadores) {
+        const id = Number(d.id);
+        let total = 0;
+        for (const item of this.quickItems) {
+          total += Number(this.getQuickScore(item.key, id) || 0);
+        }
+        if (total === 0) continue;
+        const p = this.pointsService.adjust({
+          desbravadorId: id,
+          amount: total,
+          reason: `Marcação rápida - Cantinho da Unidade`,
+          authorId: this.currentUser?.id
+        }).toPromise();
+        adjustments.push(p);
+      }
+
+      await Promise.all(adjustments);
+      this.successMessage = 'Marcações salvas com sucesso.';
+      this.refreshPoints();
+    } catch (err) {
+      console.error('Erro ao salvar marcações rápidas', err);
+    } finally {
+      this.submittingQuick = false;
+    }
   }
 
   
