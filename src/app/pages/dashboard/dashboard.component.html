@@ -102,6 +102,15 @@
         </div>
       </div>
 
+      <!-- Capelania (Capelania role) -->
+      <div class="card" *ngIf="hasRole('CAPELANIA')" (click)="goToCapelania()" style="cursor: pointer;">
+        <div class="card-icon"><mat-icon>church</mat-icon></div>
+        <div>
+          <h2 title="Capelania">Capelania</h2>
+          <p title="Ações e recursos para Capelania">Ações e recursos para Capelania</p>
+        </div>
+      </div>
+
       <!-- Usuários (Admin + Secretaria) -->
       <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToUsers()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>people</mat-icon></div>

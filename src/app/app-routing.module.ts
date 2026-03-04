@@ -15,6 +15,7 @@ import { TextosBiblicosComponent } from './pages/textos-biblicos/textos-biblicos
 import { MeritoPageComponent } from './pages/merito/merito-page.component';
 import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/cadastro-desbravadores.component';
 import { DesafioUnidadesComponent } from './pages/desafio-unidades/desafio-unidades.component';
+import { CapelaniaComponent } from './pages/capelania/capelania.component';
 import { InstrutorGuard } from './core/guards/instrutores.guard';
 
 
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'desafio-unidades', component: DesafioUnidadesComponent, canActivate: [AdminOrConselheiroGuard], data: { order: 10 } },
   { path: 'atrasados', component: AtrasadosComponent, canActivate: [AdminGuard], data: { order: 7 } },
   { path: 'textos-biblicos', component: TextosBiblicosComponent, canActivate: [AdminOrConselheiroGuard], data: { order: 8 } },
+  { path: 'capelania', component: CapelaniaComponent, data: { order: 11 } },
   { path: 'users', component: UsersComponent, data: { order: 9 } },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];

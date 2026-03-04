@@ -36,7 +36,6 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   uniformeOptions = [10, 5, 0];
   materialOptions = [10, 5, 0];
   classeOptions = [10, 5, 0];
-  classeBiblicaOptions = [10, 5, 0];
   espEquipeOptions = [10, 5, 0];
   disciplinaOptions = [10, 5, 0];
   textoBiblicoOptions = [0, -20];
@@ -84,7 +83,6 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
       uniforme: [null, Validators.required],
       material: [null, Validators.required],
       classe: [null, Validators.required],
-      classeBiblica: [null, Validators.required],
       espEquipe: [null, Validators.required],
       disciplina: [null, Validators.required],
       textoBiblico: [null, Validators.required]
@@ -482,7 +480,6 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
       case 'uniforme': return this.uniformeOptions;
       case 'material': return this.materialOptions;
       case 'classe': return this.classeOptions;
-      case 'classeBiblica': return this.classeBiblicaOptions;
       case 'espEquipe': return this.espEquipeOptions;
       case 'disciplina': return this.disciplinaOptions;
       case 'textoBiblico': return this.textoBiblicoOptions;
@@ -657,7 +654,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
   // calcula a soma atual com base nos valores do formulário
   get total(): number {
     const v = (this.form.getRawValue && this.form.getRawValue()) || this.form.value || {};
-    const keys = ['presence','pontualidade','uniforme','material','classe','classeBiblica','espEquipe','disciplina','textoBiblico'];
+    const keys = ['presence','pontualidade','uniforme','material','classe','espEquipe','disciplina','textoBiblico'];
     return keys.reduce((acc, k) => {
       const val = Number(v[k]);
       return acc + (Number.isFinite(val) ? val : 0);

@@ -29,6 +29,10 @@ export class UsersService {
     return this.http.get<any[]>(`${this.base}/conselheiros`).pipe(catchError(() => of([])));
   }
 
+  getCapelania(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/capelania`).pipe(catchError(() => of([])));
+  }
+
   updateUser(id: number, payload: Partial<{ name: string; roles: string[]; unidade: string | null; classe: string | null }>) {
     return this.http.put(`${this.base}/${id}`, payload);
   }

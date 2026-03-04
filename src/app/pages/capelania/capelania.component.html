@@ -1,0 +1,51 @@
+<div class="capelania-page">
+    <header class="header">
+        <h1>Capelania — Classe Bíblica</h1>
+        <p class="muted">Marcar faltas e atribuir nota (10 / 5 / 0) para todos os desbravadores</p>
+        <div class="date-control">
+            <mat-form-field appearance="fill" appearance="outline">
+                <mat-label>Data de aplicação</mat-label>
+                <input matInput [matDatepicker]="capPicker" [matDatepickerFilter]="onlySundays"
+                    (dateChange)="onMatDateChange($event)" placeholder="Selecione um domingo">
+                <mat-datepicker-toggle matSuffix [for]="capPicker"></mat-datepicker-toggle>
+                <mat-datepicker #capPicker></mat-datepicker>
+            </mat-form-field>
+        </div>
+    </header>
+
+    <div *ngIf="loading">Carregando desbravadores...</div>
+
+    <div *ngIf="!loading && desbravadores.length" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="list">
+            <article *ngFor="let d of desbravadores" class="card">
+                <div class="row">
+                    <div class="left">
+                        <div class="name">{{ d.name || '—' }}</div>
+                        <div class="meta">{{ d.unidade || 'Sem Unidade' }} • {{ d.classe || '—' }}</div>
+                    </div>
+                    <div class="actions">
+                        <label class="absent">
+                            <input type="checkbox" [checked]="absentMap[d.id]" (change)="toggleAbsent(d.id, $event)" />
+                            Ausente
+                        </label>
+                        <div class="scores">
+                            <button mat-button class="score" [class.active]="scoreMap[d.id] === 10"
+                                (click)="setScore(d.id, 10)" [disabled]="absentMap[d.id] || submitting">10</button>
+                            <button mat-button class="score" [class.active]="scoreMap[d.id] === 5"
+                                (click)="setScore(d.id, 5)" [disabled]="absentMap[d.id] || submitting">5</button>
+                            <button mat-button class="score" [class.active]="scoreMap[d.id] === 0"
+                                (click)="setScore(d.id, 0)" [disabled]="absentMap[d.id] || submitting">0</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="controls bottom">
+            <button mat-raised-button color="primary" class="btn" (click)="saveAll()" [disabled]="submitting">Salvar
+                todas</button>
+        </div>
+    </div>
+
+    <div *ngIf="!loading && !desbravadores.length">Nenhum desbravador encontrado.</div>
+</div>

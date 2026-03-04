@@ -78,6 +78,12 @@ export class DashboardComponent {
     }
   }
 
+  goToCapelania() {
+    if (this.hasRole('CAPELANIA')) {
+      this.router.navigate(['/capelania']);
+    }
+  }
+
   goToClasses() {
     if (this.hasRole('INSTRUTOR')) {
       this.router.navigate(['/cartoes-classes']);

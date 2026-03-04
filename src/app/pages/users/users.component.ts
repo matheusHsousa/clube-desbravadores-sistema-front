@@ -15,6 +15,7 @@ export class UsersComponent implements OnInit {
     desbravadores: any[] = [];
     instrutores: any[] = [];
     conselheiros: any[] = [];
+    capelania: any[] = [];
     loading = false;
 
     // UI state
@@ -38,7 +39,7 @@ export class UsersComponent implements OnInit {
     // enums for selects
     unidades = ['DA', 'ASER', 'MANASSES', 'JUDA', 'BENJAMIN', 'RUBEN'];
     classes = ['AMIGO', 'COMPANHEIRO', 'PESQUISADOR', 'PIONEIRO', 'EXCURSIONISTA', 'GUIA'];
-    rolesOptions = ['CONSELHEIRO', 'INSTRUTOR', 'ADMIN', 'SECRETARIA'];
+    rolesOptions = ['CONSELHEIRO', 'INSTRUTOR', 'ADMIN', 'SECRETARIA', 'CAPELANIA'];
 
     // retornar abreviação curta para exibir em badges
     abbrRole(role: string) {
@@ -53,6 +54,8 @@ export class UsersComponent implements OnInit {
                 return 'CONS';
             case 'SECRETARIA':
                 return 'SECRE';
+            case 'CAPELANIA':
+                return 'CPL';
             default:
                 return r.length <= 4 ? r : r.slice(0, 4);
         }
@@ -103,6 +106,11 @@ export class UsersComponent implements OnInit {
         this.usersService.getConselheiros().subscribe(
             cs => (this.conselheiros = cs),
             () => (this.conselheiros = [])
+        );
+
+        this.usersService.getCapelania().subscribe(
+            cp => (this.capelania = cp),
+            () => (this.capelania = [])
         );
 
         // pequeno timeout para esconder o loading quando as chamadas terminarem (UI simples)

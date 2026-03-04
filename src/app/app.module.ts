@@ -68,6 +68,7 @@ import { MeritoService } from './services/merito.service';
 import { MeritoPageComponent } from './pages/merito/merito-page.component';
 import { CadastroDesbravadoresComponent } from './pages/cadastro-desbravadores/cadastro-desbravadores.component';
 import { DesafioUnidadesComponent } from './pages/desafio-unidades/desafio-unidades.component';
+import { CapelaniaComponent } from './pages/capelania/capelania.component';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -94,6 +95,7 @@ const firebaseProviders = firebaseConfig ? [
     AvatarUrlPipe,
     DesafioUnidadesComponent,
     MeritoTopComponent
+    , CapelaniaComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,163 @@
+.capelania-page {
+    padding: 18px;
+    max-width: 900px;
+    margin: 0 auto
+}
+
+.header {
+    margin-bottom: 12px
+}
+
+.muted {
+    color: #666;
+    font-size: 13px
+}
+    .list { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card { padding: 12px; border-radius: 8px; background: #fff; border: 1px solid rgba(0,0,0,0.04); display: flex; align-items: center; min-height: 72px }
+.controls {
+    margin-bottom: 12px
+}
+
+.btn {
+    background: var(--primary);
+    color: var(--primary-contrast);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px
+}
+
+.list {
+    display: grid;
+    gap: 10px
+}
+
+.card {
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%
+}
+
+.left .name {
+    font-weight: 700
+}
+
+.left .meta {
+    color: #666;
+    font-size: 13px
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.absent {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px
+}
+
+.scores {
+    display: flex;
+    gap: 6px
+}
+
+.score {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f3f4f6;
+    cursor: pointer
+}
+
+.score.active {
+    background: var(--primary);
+    color: var(--primary-contrast);
+    border-color: var(--primary)
+}
+
+/* Responsive - mobile first adjustments */
+@media (max-width: 600px) {
+    .capelania-page {
+        padding: 12px;
+    }
+
+    .header {
+        margin-bottom: 10px
+    }
+
+    .date-control {
+        width: 100%;
+        margin-bottom: 8px
+    }
+
+    mat-form-field {
+        width: 100%;
+    }
+
+    .card {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px;
+    }
+
+    .row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px
+    }
+
+    .left {
+        margin-bottom: 6px
+    }
+
+    .actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap
+    }
+
+    .absent {
+        order: 2;
+        width: 100%;
+        justify-content: flex-start
+    }
+
+    .scores {
+        order: 3;
+        width: 100%;
+        display: flex;
+        gap: 8px
+    }
+
+    .score {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 10px 6px;
+        font-size: 16px;
+        text-align: center
+    }
+
+    .controls.bottom {
+        display: flex;
+        justify-content: center;
+    }
+
+    .controls.bottom .btn {
+        width: 100%;
+        max-width: 360px;
+    }
+}
