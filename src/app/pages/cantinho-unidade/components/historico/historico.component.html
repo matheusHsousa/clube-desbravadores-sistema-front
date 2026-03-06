@@ -15,7 +15,7 @@
           <mat-datepicker-toggle matIconSuffix [for]="txSundayPicker"></mat-datepicker-toggle>
           <mat-datepicker #txSundayPicker></mat-datepicker>
         </mat-form-field>
-        <button mat-raised-button color="primary" (click)="openTransactionsDialog()">Buscar marcações</button>
+        <button mat-raised-button color="primary" (click)="openTransactionsDialog()" [disabled]="!canSearch">Buscar marcações</button>
       </div>
 
       <div class="table-responsive">

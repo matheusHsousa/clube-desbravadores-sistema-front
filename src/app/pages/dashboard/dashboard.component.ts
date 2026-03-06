@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Router } from '@angular/router';
 import { StatsService } from 'src/app/services/stats.service';
+import { PushService } from 'src/app/services/push.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,8 +15,10 @@ export class DashboardComponent {
   selectedTab: string | null = null;
   unidadePoints: number | null = null;
   unidadePointsLoading = false;
+  showCharts = false;
+  chartsLoading = false;
 
-  constructor(private authService: AuthService, private router: Router, private stats: StatsService) {
+  constructor(private authService: AuthService, private router: Router, private stats: StatsService, private pushService: PushService) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateTabs();
@@ -57,6 +60,21 @@ export class DashboardComponent {
 
   selectTab(key: string): void {
     this.selectedTab = key;
+  }
+
+  toggleCharts(): void {
+    if (this.showCharts) {
+      this.showCharts = false;
+      return;
+    }
+
+    // marca carregando para possível uso em UI
+    this.chartsLoading = true;
+    // pequena espera para exibir spinner se necessário — aqui somente para UX
+    setTimeout(() => {
+      this.showCharts = true;
+      this.chartsLoading = false;
+    }, 150);
   }
 
   get showTabs(): boolean {

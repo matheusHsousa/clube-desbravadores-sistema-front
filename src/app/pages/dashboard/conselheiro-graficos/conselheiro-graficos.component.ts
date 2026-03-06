@@ -48,7 +48,7 @@ export class ConselheiroGraficosComponent implements OnInit {
   };
 
   currentUserUnidade: string = '';
-  startDate: string = '2026-02-22';
+  startDate: string = '2026-03-01';
   private alertShown = false;
 
   constructor(

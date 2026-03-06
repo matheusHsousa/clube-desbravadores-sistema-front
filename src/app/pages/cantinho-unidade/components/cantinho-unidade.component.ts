@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ViewChild, ViewChildren, QueryList, ElementRef, TemplateRef } from '@angular/core';
-import { MatDrawer } from '@angular/material/sidenav';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/auth/auth.service';
 import { Subject, forkJoin, of } from 'rxjs';
@@ -62,17 +61,11 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 	submittingQuick = false;
 	stepperOrientation: 'horizontal' | 'vertical' = 'horizontal';
 
-	@ViewChildren('stepFirstInput', { read: ElementRef }) stepFirstInputs?: QueryList<ElementRef>;
-	@ViewChild('stepperContainer', { read: ElementRef }) stepperHeaderElement?: ElementRef;
 	@ViewChild('debtorsDialog') debtorsDialog!: TemplateRef<any>;
 	@ViewChild('transactionsDialog') transactionsDialog!: TemplateRef<any>;
-	@ViewChild('editDialog') editDialog!: TemplateRef<any>;
-	@ViewChild('drawer') drawer!: MatDrawer;
 
 	activeStepIndex = 0;
 	transactions: any[] = [];
-	editForm: FormGroup;
-	editingTransactionId: number | null = null;
 	tabIndex: number = 0;
 
 	constructor(
@@ -86,7 +79,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 		private pushService: PushService,
 		private dialog: MatDialog,
 		private bottomSheet: MatBottomSheet,
-		private host: ElementRef,
+        
 		private router: Router
 	) {
 		this.form = this.fb.group({
@@ -102,18 +95,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 			textoBiblico: [{ value: null, disabled: true }, Validators.required]
 		});
 
-		this.editForm = this.fb.group({
-			reason: [null, Validators.required],
-			sundayDate: [null, Validators.required],
-			presence: [0],
-			pontualidade: [0],
-			uniforme: [0],
-			material: [0],
-			classe: [0],
-			espEquipe: [0],
-			disciplina: [0],
-			textoBiblico: [{ value: 0, disabled: true }]
-		});
+		// editForm moved to EditTransactionSheetComponent
 	}
 
 	private updateTabFromUrl(url?: string) {
@@ -147,7 +129,11 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.destroy$))
 			.subscribe(
 				list => { this.transactions = Array.isArray(list) ? list : []; },
-				err => { console.error('Erro ao listar transações', err); this.transactions = []; }
+				err => {
+					console.error('Erro ao listar transações', err);
+					this.transactions = [];
+					try { this.snackBar.open('Erro ao buscar marcações: ' + (err?.message || 'Erro desconhecido'), 'OK', { duration: 4000 }); } catch (e) { /* ignore */ }
+				}
 			);
 
 		// Chamar /atrasados/historico somente quando houver filtro (desbravadorId ou data)
@@ -172,63 +158,22 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 		try {
 			const isMobile = (window && window.innerWidth && window.innerWidth < 600);
 			if (isMobile) {
-				try { this.bottomSheet.open(EditTransactionSheetComponent, { data: { tx } }); }
-				catch (e) { this.dialog.open(this.editDialog, { data: { tx }, width: '100%', maxWidth: '100%' }); }
+				this.bottomSheet.open(EditTransactionSheetComponent, { data: { tx } });
 				return;
 			}
 
-			this.editForm.patchValue({
-				reason: tx.reason || '',
-				sundayDate: tx.sundayDate ? new Date(tx.sundayDate) : null,
-				presence: tx.presence ?? 0,
-				pontualidade: tx.pontualidade ?? 0,
-				uniforme: tx.uniforme ?? 0,
-				material: tx.material ?? 0,
-				classe: tx.classe ?? 0,
-				espEquipe: tx.espEquipe ?? 0,
-				disciplina: tx.disciplina ?? 0,
-				textoBiblico: tx.textoBiblico ?? 0
+			// Desktop: abrir diálogo com o componente de edição
+			const ref = this.dialog.open(EditTransactionSheetComponent, { data: { tx }, width: '460px', maxWidth: '96vw' });
+			ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(res => {
+				if (res) {
+					this.openTransactionsDialog();
+					this.refreshPoints();
+				}
 			});
-			this.editingTransactionId = tx.id;
-			try { this.drawer.open(); } catch (e) { /* ignore */ }
-			for (const k of ['presence', 'pontualidade', 'uniforme', 'material', 'classe', 'espEquipe', 'disciplina', 'textoBiblico']) {
-				const c = this.editForm.get(k);
-				if (c) c.enable({ emitEvent: false });
-			}
-			try { this.editForm.controls['textoBiblico'].disable({ emitEvent: false }); } catch (e) { /* ignore */ }
 		} catch (e) { console.error(e); }
 	}
 
-	async saveEditedTransaction() {
-		if (this.editForm.invalid) return;
-		const txId = this.editingTransactionId;
-		if (!txId) return;
-		const values = this.editForm.getRawValue();
-		const payload: any = {
-			reason: values.reason,
-			sundayDate: values.sundayDate ? (values.sundayDate instanceof Date ? values.sundayDate.toISOString() : new Date(values.sundayDate).toISOString()) : null,
-			presence: Number(values.presence) || 0,
-			pontualidade: Number(values.pontualidade) || 0,
-			uniforme: Number(values.uniforme) || 0,
-			material: Number(values.material) || 0,
-			classe: Number(values.classe) || 0,
-			espEquipe: Number(values.espEquipe) || 0,
-			disciplina: Number(values.disciplina) || 0,
-			textoBiblico: Number(values.textoBiblico) || 0
-		};
-		try {
-			this.submitting = true;
-			await this.pointsService.editTransaction(txId, payload).toPromise();
-			this.snackBar.open('Transação atualizada', 'OK', { duration: 2000 });
-			try { this.drawer.close(); } catch (e) { /* ignore */ }
-			this.editingTransactionId = null;
-			this.openTransactionsDialog();
-			this.refreshPoints();
-		} catch (e) {
-			console.error('Erro ao salvar transação', e);
-			this.snackBar.open('Erro ao salvar', 'OK', { duration: 3000 });
-		} finally { this.submitting = false; }
-	}
+	// saveEditedTransaction moved to EditTransactionSheetComponent
 
 	setAbsent(id: number, value: boolean) { try { this.absentMap = { ...this.absentMap, [Number(id)]: !!value }; } catch (e) { /* ignore */ } }
 
@@ -244,8 +189,7 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 			try {
 				const roles = user?.roles;
 				if (Array.isArray(roles) && roles.includes('CONSELHEIRO')) {
-					const userId = user?.id != null ? String(user.id) : null;
-					this.pushService.subscribe(userId, 'CONSELHEIRO');
+					// push subscription handled by Dashboard; do not subscribe here to avoid extra API call
 				}
 			} catch (e) { console.warn('Push subscribe attempt failed', e); }
 			if (!user?.unidade) { this.desbravadores = []; return; }
@@ -275,47 +219,27 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 	}
 
 	loadDebtorsForUnit(list: any[]) {
+		// Não chamar mais /textos-biblicos/meus-atrasados a partir deste componente.
+		// Em vez disso, inicializa localmente sem informações de débito —
+		// o cálculo de débito ficará a cargo da tela de Textos Bíblicos.
 		try {
-			if (!this.currentUser || !this.currentUser.id) { this.debtors = []; return; }
-
-			// Request only debtors relevant to the current user (conselheiro) on the server
-			this.textosBiblicosService.buscarMeusAtrasados(this.currentUser.id).pipe(takeUntil(this.destroy$)).subscribe(all => {
-				const ids = new Set((list || []).map(d => Number(d.id)));
-				this.debtors = Array.isArray(all) ? all.filter(a => a && a.tipo === 'desbravador' && ids.has(Number(a.pessoa?.id))) : [];
-
-				// Update quickScores for textoBiblico: mark -20 for debtors, 0 otherwise
-				try {
-					if (!this.quickScores) this.quickScores = {};
-					if (!this.quickScores['textoBiblico']) this.quickScores['textoBiblico'] = {};
-					const debtorIds = new Set((this.debtors || []).map(d => Number(d.pessoa?.id)));
-					for (const d of list || []) {
-						const id = Number(d.id);
-						this.quickScores['textoBiblico'][id] = debtorIds.has(id) ? -20 : 0;
-						this.textoBiblicoDisabled[id] = true;
-					}
-				} catch (e) { /* ignore */ }
-			}, err => { this.debtors = []; });
-		} catch (e) { this.debtors = []; }
+			this.debtors = [];
+			if (!this.quickScores) this.quickScores = {};
+			if (!this.quickScores['textoBiblico']) this.quickScores['textoBiblico'] = {};
+			for (const d of list || []) {
+				const id = Number(d.id);
+				this.quickScores['textoBiblico'][id] = 0; // não marcar débito aqui
+				this.textoBiblicoDisabled[id] = true;
+			}
+		} catch (e) {
+			this.debtors = [];
+		}
 	}
 
 	openDebtorsDialog() { try { if (!this.debtors || !this.debtors.length) return; this.dialog.open(this.debtorsDialog, { width: '360px' }); } catch (e) { /* ignore */ } }
 
 	@HostListener('window:resize')
 	updateStepperOrientation() { try { this.stepperOrientation = (window && window.innerWidth && window.innerWidth < 600) ? 'vertical' : 'horizontal'; } catch (e) { this.stepperOrientation = 'horizontal'; } }
-
-	nextStep() { try { const max = (this.quickItems?.length ?? 0); if (this.activeStepIndex < max) this.activeStepIndex++; setTimeout(() => this.scrollToActiveStepHeader(), 0); setTimeout(() => { try { const el = document.querySelector('.stepper-headers') as HTMLElement | null; if (el && typeof el.scrollIntoView === 'function') { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } } catch (e) { /* ignore */ } }, 50); setTimeout(() => { this.scrollToActiveStepContent(); this.focusFirstInActiveStep(); }, 180); } catch (e) { console.warn(e); } }
-
-	previousStep() { try { if (this.activeStepIndex > 0) this.activeStepIndex--; setTimeout(() => this.scrollToActiveStepHeader(), 0); setTimeout(() => { try { const el = document.querySelector('.stepper-headers') as HTMLElement | null; if (el && typeof el.scrollIntoView === 'function') { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } } catch (e) { /* ignore */ } }, 50); setTimeout(() => { this.scrollToActiveStepContent(); this.focusFirstInActiveStep(); }, 180); } catch (e) { console.warn(e); } }
-
-	onStepChange(event: any) { }
-
-	goToStep(i: number) { const max = (this.quickItems?.length ?? 0); if (i < 0) i = 0; if (i > max) i = max; this.activeStepIndex = i; setTimeout(() => this.scrollToActiveStepHeader(), 0); setTimeout(() => { this.scrollToActiveStepContent(); this.focusFirstInActiveStep(); }, 180); }
-
-	private scrollToActiveStepContent() { try { const idx = this.activeStepIndex ?? 0; const host = this.host?.nativeElement as HTMLElement | null; const panels = host ? host.querySelectorAll('.step-panel') as NodeListOf<HTMLElement> : document.querySelectorAll('.step-panel') as NodeListOf<HTMLElement>; const panel = panels?.[idx] as HTMLElement | undefined; if (panel) { const rect = panel.getBoundingClientRect(); const headerOffset = 72; const target = rect.top + window.pageYOffset - headerOffset - 8; window.scrollTo({ top: target, behavior: 'smooth' }); } } catch (e) { /* ignore */ } }
-
-	private scrollToActiveStepHeader() { try { const idx = this.activeStepIndex ?? 0; const headerContainer = (this.stepperHeaderElement?.nativeElement as HTMLElement | null) || (this.host?.nativeElement && (this.host.nativeElement.querySelector('.stepper-headers, .mat-horizontal-stepper-header, .mat-mdc-stepper-header, .mat-stepper-header') as HTMLElement)) || document.querySelector('.stepper-headers, .mat-horizontal-stepper-header, .mat-mdc-stepper-header, .mat-stepper-header') as HTMLElement; if (!headerContainer) return; const selector = `[data-step="${idx}"]`; const header = headerContainer.querySelector(selector) as HTMLElement | null; if (header) { try { const container = headerContainer as HTMLElement; const headerCenter = header.offsetLeft + (header.offsetWidth / 2); const targetScrollLeft = Math.max(0, headerCenter - (container.clientWidth / 2)); if (typeof container.scrollTo === 'function') { container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' }); return; } if (typeof header.scrollIntoView === 'function') { header.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } } catch (e) { /* ignore */ } } } catch (e) { } }
-
-	private focusFirstInActiveStep() { try { const idx = this.activeStepIndex ?? 0; const arr = this.stepFirstInputs?.toArray() ?? []; const elRef = arr[idx]; if (elRef && elRef.nativeElement) { try { const el = elRef.nativeElement as HTMLElement; if (typeof el.focus === 'function') { el.focus(); return; } const inner = el.querySelector<HTMLElement>('select, input, button, [tabindex]'); if (inner && typeof inner.focus === 'function') { inner.focus(); return; } } catch (e) { /* ignore */ } } try { const host = this.host?.nativeElement as HTMLElement | null; if (host) { const steps = host.querySelectorAll('.step-panel, .mat-step, .mat-stepper-content'); const panel = steps?.[idx] as HTMLElement | undefined; const root = panel ?? host.querySelector('.stepper-content') ?? host; if (root) { const first = root.querySelector<HTMLElement>('select, input, textarea, button, [tabindex]'); if (first && typeof first.focus === 'function') { first.focus(); return; } } } } catch (e) { } } catch (e) { } }
 
 	getQuickTotal(desbId: number): number { if (!this.quickScores || !this.desbravadores) return 0; if (this.absentMap?.[Number(desbId)]) return 0; let sum = 0; for (const key of Object.keys(this.quickScores)) { sum += Number(this.quickScores[key]?.[Number(desbId)] ?? 0); } return sum; }
 
@@ -465,14 +389,9 @@ export class CantinhoUnidadeComponent implements OnInit, OnDestroy {
 			this.successMessage = 'Marcações salvas com sucesso.';
 			this.refreshPoints();
 			try {
-				this.initQuickScores(this.desbravadores || []);
-				this.activeStepIndex = 0;
-				this.absentMap = {};
-				setTimeout(() => {
-					try { this.scrollToActiveStepHeader(); } catch (e) { }
-					try { this.scrollToActiveStepContent(); } catch (e) { }
-					try { this.focusFirstInActiveStep(); } catch (e) { }
-				}, 50);
+					this.initQuickScores(this.desbravadores || []);
+					this.activeStepIndex = 0;
+					this.absentMap = {};
 			} catch (e) { }
 		} catch (err) {
 			console.error('Erro ao salvar marcações rápidas', err);

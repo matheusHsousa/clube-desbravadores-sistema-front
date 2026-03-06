@@ -14,17 +14,40 @@
         </ng-template>
       </button>
 
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item (click)="goToProfile()">Perfil</button>
-        <button mat-menu-item (click)="logout()">Sair</button>
+      <mat-menu #userMenu="matMenu" class="user-menu">
+        <button mat-menu-item (click)="goToProfile()"><mat-icon>person</mat-icon><span>Perfil</span></button>
+        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Sair</span></button>
       </mat-menu>
     </div>
   </header>
 
 
+  <div style="display:flex; gap:8px; align-items:center; justify-content: end; margin: 24px;">
+    <button mat-raised-button (click)="toggleCharts()" [attr.aria-label]="showCharts ? 'Ocultar gráficos' : 'Carregar gráficos'" matTooltip="{{ showCharts ? 'Ocultar gráficos' : 'Carregar gráficos' }}">
+      <mat-icon color="primary" style="margin: 0;">{{ showCharts ? 'close' : 'bar_chart' }}</mat-icon>
+    </button>
+    <mat-progress-spinner *ngIf="chartsLoading" diameter="24" mode="indeterminate"></mat-progress-spinner>
+  </div>
 
-  <!-- Conteúdo -->
-  <main class="content">
+
+  <main class="content" >
+    <div *ngIf="showCharts" style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+      <section class="graficos-section" *ngIf="showTabs">
+        <div *ngIf="showTabs" class="tabs">
+          <button *ngFor="let tab of availableTabs" type="button" class="tab" [class.active]="selectedTab === tab.key"
+            (click)="selectTab(tab.key)">
+            {{ tab.label }}
+          </button>
+        </div>
+
+      </section>
+      <div class="tab-panels" *ngIf="showCharts">
+        <app-admin-graficos *ngIf="selectedTab === 'admin'"></app-admin-graficos>
+        <app-instrutor-graficos *ngIf="selectedTab === 'instrutor'"></app-instrutor-graficos>
+        <app-conselheiro-graficos *ngIf="selectedTab === 'conselheiro'"></app-conselheiro-graficos>
+      </div>
+    </div>
+
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1>Painel</h1>
       <div *ngIf="hasRole('CONSELHEIRO')" class="unidade-points">
@@ -32,7 +55,7 @@
         <span class="text">{{ unidadePoints ?? '—' }} pts</span>
       </div>
     </div>
-    
+
     <div style="display:flex; align-items:center; gap:1rem; margin-bottom: 1rem;">
       <p class="subtitle" style="margin:0">Bem-vindo ao sistema do clube</p>
     </div>
@@ -41,7 +64,8 @@
       <!-- Ordem por importância: Cadastro, Classes, Unidades, Placar, Atrasados, Textos Bíblicos, Usuários -->
 
       <!-- Cadastro de Desbravadores (Admin + Secretaria) -->
-      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToCadastroDesbravadores()" style="cursor: pointer;">
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToCadastroDesbravadores()"
+        style="cursor: pointer;">
         <div class="card-icon"><mat-icon>person_add</mat-icon></div>
         <div>
           <h2 title="Cadastro Desbravadores">Cadastro Desbravadores</h2>
@@ -67,7 +91,7 @@
         </div>
       </div>
 
-      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToDesafioUnidades()" style="cursor: pointer;">
+      <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToDesafioUnidades()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>emoji_events</mat-icon></div>
         <div>
           <h2 title="Desafio das Unidades">Desafio das Unidades</h2>
@@ -80,7 +104,8 @@
         <div class="card-icon"><mat-icon>leaderboard</mat-icon></div>
         <div>
           <h2 title="Placar de Mérito">Placar de Mérito</h2>
-          <p title="Ver ranking completo de mérito por classe e pontos">Ver ranking completo de mérito por classe e pontos</p>
+          <p title="Ver ranking completo de mérito por classe e pontos">Ver ranking completo de mérito por classe e
+            pontos</p>
         </div>
       </div>
 
@@ -94,11 +119,12 @@
       </div>
 
       <!-- Textos Bíblicos (Admin + Conselheiro) -->
-      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('CONSELHEIRO')" (click)="goToTextosBiblicos()" style="cursor: pointer;">
+      <div class="card" *ngIf="hasRole('ADMIN')" (click)="goToTextosBiblicos()" style="cursor: pointer;">
         <div class="card-icon"><mat-icon>menu_book</mat-icon></div>
         <div>
           <h2 title="Textos Bíblicos">Textos Bíblicos</h2>
-          <p title="Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)">Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)</p>
+          <p title="Enviar e gerenciar textos bíblicos (aprovadores veem toda a fila)">Enviar e gerenciar textos
+            bíblicos (aprovadores veem toda a fila)</p>
         </div>
       </div>
 
@@ -112,7 +138,8 @@
       </div>
 
       <!-- Usuários (Admin + Secretaria) -->
-      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToUsers()" style="cursor: pointer;">
+      <div class="card" *ngIf="hasRole('ADMIN') || hasRole('SECRETARIA')" (click)="goToUsers()"
+        style="cursor: pointer;">
         <div class="card-icon"><mat-icon>people</mat-icon></div>
         <div>
           <h2>Usuários</h2>
@@ -120,24 +147,7 @@
         </div>
       </div>
     </div>
-  
-    <div style="display: flex; justify-content: center; margin-top: 2rem; flex-direction: column; align-items: center;">
-         <section class="graficos-section">
-        <div *ngIf="showTabs" class="tabs">
-          <button *ngFor="let tab of availableTabs" type="button" class="tab" [class.active]="selectedTab === tab.key"
-            (click)="selectTab(tab.key)">
-            {{ tab.label }}
-          </button>
-        </div>
 
-      </section>
-      <div class="tab-panels">
-        <app-admin-graficos *ngIf="selectedTab === 'admin'"></app-admin-graficos>
-        <app-instrutor-graficos *ngIf="selectedTab === 'instrutor'"></app-instrutor-graficos>
-        <app-conselheiro-graficos *ngIf="selectedTab === 'conselheiro'"></app-conselheiro-graficos>
-      </div>
-    </div>
-  
   </main>
 
 </div>

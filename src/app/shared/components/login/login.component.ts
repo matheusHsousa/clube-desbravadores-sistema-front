@@ -28,6 +28,8 @@ export class LoginComponent {
     } catch (err) {
       this.error = 'Erro ao fazer login com Google';
       console.error(err);
+      // redireciona para tela de fallback quando houver falha na validação do backend
+      this.router.navigate(['/login-fallback']);
     } finally {
       this.loading = false;
     }

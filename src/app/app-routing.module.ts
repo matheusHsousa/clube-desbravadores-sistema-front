@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './shared/components/login/login.component';
+import { LoginFallbackComponent } from './shared/components/login-fallback/login-fallback.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { UsersComponent } from './pages/users/users.component';
 import { AtrasadosComponent } from './pages/atrasados/atrasados.component';
@@ -20,6 +21,7 @@ import { InstrutorGuard } from './core/guards/instrutores.guard';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, data: { order: 0 } },
+  { path: 'login-fallback', component: LoginFallbackComponent },
   { path: 'dashboard', component: DashboardComponent, data: { order: 1 } },
   { path: 'user-profile', component: UserProfileComponent, data: { order: 2 } },
   {

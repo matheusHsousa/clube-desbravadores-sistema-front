@@ -1,5 +1,4 @@
-import { OnInit, OnDestroy, HostListener, ViewChild, ViewChildren, QueryList, ElementRef, TemplateRef, Directive } from '@angular/core';
-import { MatDrawer } from '@angular/material/sidenav';
+import { OnInit, OnDestroy, HostListener, ViewChild, TemplateRef, Directive } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -53,16 +52,11 @@ export class CantinhoUnidadeBase implements OnInit, OnDestroy {
   debtors: any[] = [];
   submittingQuick = false;
   stepperOrientation: 'horizontal' | 'vertical' = 'horizontal';
-  @ViewChildren('stepFirstInput', { read: ElementRef }) stepFirstInputs?: QueryList<ElementRef>;
-  @ViewChild('stepperContainer', { read: ElementRef }) stepperHeaderElement?: ElementRef;
   @ViewChild('debtorsDialog') debtorsDialog!: TemplateRef<any>;
   @ViewChild('transactionsDialog') transactionsDialog!: TemplateRef<any>;
-  @ViewChild('editDialog') editDialog!: TemplateRef<any>;
-  @ViewChild('drawer') drawer!: MatDrawer;
   activeStepIndex = 0;
   transactions: any[] = [];
-  editForm: FormGroup;
-  editingTransactionId: number | null = null;
+  // editForm and editingTransactionId removed — edit handled by EditTransactionSheetComponent
   tabIndex = 0;
 
   constructor(
@@ -76,7 +70,7 @@ export class CantinhoUnidadeBase implements OnInit, OnDestroy {
     protected pushService: PushService,
     protected dialog: MatDialog,
     protected bottomSheet: MatBottomSheet,
-    protected host: ElementRef
+    
   ) {
     this.form = this.fb.group({
       sundayDate: [null, Validators.required],
@@ -91,18 +85,7 @@ export class CantinhoUnidadeBase implements OnInit, OnDestroy {
       textoBiblico: [null, Validators.required]
     });
 
-    this.editForm = this.fb.group({
-      reason: [null, Validators.required],
-      sundayDate: [null, Validators.required],
-      presence: [0],
-      pontualidade: [0],
-      uniforme: [0],
-      material: [0],
-      classe: [0],
-      espEquipe: [0],
-      disciplina: [0],
-      textoBiblico: [0]
-    });
+    // edit form is now managed inside EditTransactionSheetComponent
   }
 
   ngOnInit(): void {}

@@ -93,7 +93,6 @@ export class DesafioUnidadesComponent implements OnInit, AfterViewInit {
           // também carregamos as submissões da unidade para exibir status
           try {
             this.mySubmissions = await firstValueFrom(this.svc.mySubmissions());
-          console.debug('mySubmissions loaded', this.mySubmissions);
           } catch (e) {
             this.mySubmissions = [];
           }
@@ -233,10 +232,8 @@ export class DesafioUnidadesComponent implements OnInit, AfterViewInit {
       try {
         this.cd.detectChanges();
         const el = this.modalVideo && this.modalVideo.nativeElement;
-        console.debug('openMedia: modalVideo element', !!el, el?.readyState);
         if (el && typeof el.play === 'function') {
           el.play().then(() => {
-            console.debug('openMedia: play succeeded');
             // try to unmute shortly after playback begins so user hears audio
             setTimeout(() => {
               try { el.muted = false; this.selectedMediaAutoMuted = false; this.cd.detectChanges(); } catch (e) { /* ignore */ }

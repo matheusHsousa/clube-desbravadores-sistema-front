@@ -4,7 +4,7 @@ import { CantinhoUnidadeComponent } from '../cantinho-unidade.component';
 @Component({
   selector: 'app-cantinho-tabela',
   templateUrl: './tabela.component.html',
-  styleUrls: ['../cantinho-unidade.component.scss', '../cantinho-stepper.scss']
+  styleUrls: ['./tabela.component.scss']
 })
 export class TabelaComponent {
   constructor(public parent: CantinhoUnidadeComponent) {}

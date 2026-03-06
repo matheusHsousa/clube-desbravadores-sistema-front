@@ -65,6 +65,7 @@ import { InstrutorGraficosComponent } from './pages/dashboard/instrutor-graficos
 import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 import { TextosBiblicosComponent } from './pages/textos-biblicos/textos-biblicos.component';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { LoginFallbackComponent } from './shared/components/login-fallback/login-fallback.component';
 import { MeritoTopComponent } from './pages/merito/merito-top.component';
 import { MeritoService } from './services/merito.service';
 import { MeritoPageComponent } from './pages/merito/merito-page.component';
@@ -97,6 +98,7 @@ const firebaseProviders = firebaseConfig ? [
     DesafioUnidadesComponent,
     MeritoTopComponent
     , CapelaniaComponent
+    , LoginFallbackComponent
     
   ],
   imports: [

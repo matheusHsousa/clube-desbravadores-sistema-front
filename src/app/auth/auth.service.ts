@@ -45,6 +45,14 @@ export class AuthService {
             this.currentUserSubject.next(backendUser);
           } catch (err) {
             console.error('Erro ao buscar usuário no backend em onAuthStateChanged:', err);
+            // quando a validação do backend falhar (ex: connection refused),
+            // redireciona para tela de fallback informando indisponibilidade
+            try {
+              this.currentUserSubject.next(null);
+              this.router.navigate(['/login-fallback']);
+            } catch (e) {
+              console.error('Erro ao redirecionar para login-fallback:', e);
+            }
           } finally {
             this.isAwaitingBackend = false;
             this.awaitingBackendSubject.next(false);
@@ -88,6 +96,8 @@ export class AuthService {
       this.router.navigate(['/dashboard']);
     } catch (err) {
       console.error('Erro no login/validação backend:', err);
+      // repassa o erro para que a UI possa exibir fallback
+      throw err;
     } finally {
       this.isAwaitingBackend = false;
       this.awaitingBackendSubject.next(false);

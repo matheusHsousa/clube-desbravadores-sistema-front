@@ -1,0 +1,89 @@
+/* Mobile-first styles for edit transaction sheet (polished card layout) */
+:host {
+	--et-primary: var(--color-primary-700, var(--primary, #1e88e5));
+	--et-on-primary: var(--primary-contrast, #fff);
+	display: block;
+	box-sizing: border-box;
+	padding: 0.5rem;
+	background: transparent;
+	color: rgba(0,0,0,0.88);
+}
+
+.edit-sheet {
+	background: var(--surface, #fff);
+	border-radius: 14px;
+	box-shadow: 0 10px 30px rgba(16,24,40,0.06);
+	padding: 0.75rem;
+	will-change: transform, opacity;
+	transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.edit-sheet header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.6rem;
+}
+
+@media (max-width: 680px) {
+  .edit-sheet header {
+    touch-action: pan-y;
+    cursor: grab;
+  }
+}
+
+.edit-sheet h2 {
+	margin: 0;
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: rgba(0,0,0,0.9);
+}
+
+.edit-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
+.field-row { display:flex; flex-direction:column; gap:0.6rem; }
+.full-width { width: 100%; }
+
+.criteria-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.7rem;
+}
+
+.reason-card {
+	background: linear-gradient(180deg, rgba(30,136,229,0.03), rgba(255,255,255,0.01));
+	border: 1px solid rgba(30,136,229,0.08);
+	border-left: 4px solid var(--et-primary);
+	padding: 0.6rem;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.reason-card .card-header { display:flex; align-items:center; justify-content:space-between; }
+.reason-card .title { font-weight:700; color: rgba(0,0,0,0.86); text-transform:none; }
+.reason-card .card-body { display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; }
+
+.note { font-size:0.85rem; color: rgba(0,0,0,0.6); }
+
+.actions { display:flex; gap:0.6rem; justify-content:flex-end; margin-top:0.6rem; }
+
+button.btn-primary { background: var(--et-primary); color: var(--et-on-primary); }
+button.btn-cancel { background: transparent; }
+
+/* Larger screens: two-column grid for criteria */
+@media (min-width: 680px) {
+	.criteria-grid { grid-template-columns: repeat(2, 1fr); }
+	.edit-sheet { padding: 1rem; }
+}
+
+/* Tweak material radio spacing */
+.reason-card mat-radio-button { margin-right: 10px; }
+
+

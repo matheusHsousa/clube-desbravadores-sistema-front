@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environments';
+import { ApiCacheService } from '../core/api-cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class StatsService {
   private base = `${environment.apiBase}/stats`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiCache: ApiCacheService) {}
 
   getInstrutorRequisitos(instrutorId: number, start?: string, end?: string): Observable<any> {
     let url = `${this.base}/instrutor/requisitos?instrutorId=${instrutorId}`;
@@ -24,7 +25,11 @@ export class StatsService {
     let url = `${this.base}/conselheiro/points?unidade=${unidade}`;
     if (start) url += `&start=${start}`;
     if (end) url += `&end=${end}`;
-    return this.http.get(url);
+
+    const key = `stats:conselheiro:points:${unidade}${start ? `:start=${start}` : ''}${end ? `:end=${end}` : ''}`;
+
+    // Cache the result for the session; only refetched if cache cleared or on full reload
+    return this.apiCache.getOrLoad(key, () => this.http.get(url), true);
   }
 
   getAdminOverview(start?: string, end?: string): Observable<any> {

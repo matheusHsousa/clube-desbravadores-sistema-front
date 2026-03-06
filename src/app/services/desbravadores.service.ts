@@ -4,12 +4,13 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { environment } from 'src/environments/environments';
+import { ApiCacheService } from '../core/api-cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class DesbravadoresService {
   private base = `${environment.apiBase}/desbravadores`;
 
-  constructor(private http: HttpClient, private auth: AuthService) { }
+  constructor(private http: HttpClient, private auth: AuthService, private apiCache: ApiCacheService) { }
 
   getForCurrentUser(): Observable<any[]> {
     return this.auth.currentUser$.pipe(
@@ -53,7 +54,10 @@ export class DesbravadoresService {
     let params = new HttpParams();
     if (filter?.unidade) params = params.set('unidade', filter.unidade);
     if (filter?.classe) params = params.set('classe', filter.classe);
-    return this.http.get<any[]>(this.base, { params });
+
+    const key = `${this.base}?${params.toString()}`;
+
+    return this.apiCache.getOrLoad<any[]>(key, () => this.http.get<any[]>(this.base, { params }), true);
   }
 
   create(payload: { name: string; birthDate?: string; unidade: string; classe: string }) {

@@ -15,7 +15,7 @@
     <div class="custom-stepper">
       <div #stepperContainer class="stepper-headers" style="display:flex;gap:8px;overflow:auto;padding:8px 0;">
         <ng-container *ngFor="let item of quickItems; let i = index">
-          <button *ngIf="i === activeStepIndex || i === (activeStepIndex + 1)" type="button" (click)="parent.goToStep(i)"
+          <button *ngIf="i === activeStepIndex || i === (activeStepIndex + 1)" type="button" (click)="goToStep(i)"
             [class.active]="i===activeStepIndex" [attr.aria-current]="i===activeStepIndex ? 'step' : null"
             [attr.data-step]="i">
             <span class="step-index">{{ i + 1 }}</span>
@@ -24,7 +24,7 @@
         </ng-container>
 
         <button *ngIf="(quickItems.length === activeStepIndex) || (quickItems.length === activeStepIndex + 1)"
-          type="button" (click)="parent.goToStep(quickItems.length)" [class.active]="activeStepIndex===quickItems.length"
+          type="button" (click)="goToStep(quickItems.length)" [class.active]="activeStepIndex===quickItems.length"
           [attr.aria-current]="activeStepIndex===quickItems.length ? 'step' : null"
           [attr.data-step]="quickItems.length">
           <span class="step-index">{{ quickItems.length + 1 }}</span>
@@ -33,7 +33,7 @@
       </div>
 
       <div class="stepper-content">
-        <ng-container *ngIf="desbravadores?.length; else noDesb">
+        <ng-container *ngIf="desbravadores.length; else noDesb">
           <ng-container *ngFor="let item of quickItems; let first = first; let last = last; let i = index">
             <div *ngIf="activeStepIndex === i" class="step-panel">
               <section class="panel">
@@ -96,8 +96,8 @@
                       <tbody>
                         <tr *ngFor="let d of presentDesbravadores">
                           <td class="name">{{ d.name }}</td>
-                          <td>{{ parent.getQuickTotal(d.id) }}</td>
-                          <td>{{ (pointsMap[d.id] ?? 0) + parent.getQuickTotal(d.id) }}</td>
+                          <td>{{ getQuickTotal(d.id) }}</td>
+                          <td>{{ (pointsMap[d.id] ?? 0) + getQuickTotal(d.id) }}</td>
                         </tr>
                       </tbody>
                     </table>

@@ -1,0 +1,13 @@
+.login-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.login-fallback h2 {
+  margin: 0;
+}
