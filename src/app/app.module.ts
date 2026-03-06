@@ -29,6 +29,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 
 import { AppComponent } from './app.component';
@@ -43,7 +46,6 @@ import { environment } from 'src/environments/environments';
 import { RuntimeConfigService } from './core/runtime-config.service';
 // import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { CantinhoUnidadeComponent } from './pages/cantinho-unidade/cantinho-unidade.component';
 import { UsersComponent } from './pages/users/users.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -85,7 +87,6 @@ const firebaseProviders = firebaseConfig ? [
   declarations: [
     AppComponent,
     DashboardComponent,
-    CantinhoUnidadeComponent,
     UsersComponent, DesbravadorCardComponent, DesbravadorClasseCardComponent, CartoesClassesComponent,
     AtrasadosComponent, HeaderComponent, AdminGraficosComponent, ConselheiroGraficosComponent, InstrutorGraficosComponent, UserProfileComponent, TextosBiblicosComponent
     , ConfirmDialogComponent,
@@ -96,6 +97,7 @@ const firebaseProviders = firebaseConfig ? [
     DesafioUnidadesComponent,
     MeritoTopComponent
     , CapelaniaComponent
+    
   ],
   imports: [
     BrowserModule,
@@ -109,6 +111,9 @@ const firebaseProviders = firebaseConfig ? [
     MatInputModule,
     MatNativeDateModule,
     MatDialogModule,
+    MatSidenavModule,
+    MatTabsModule,
+    MatBottomSheetModule,
     MatButtonModule,
     MatRadioModule,
     MatCardModule,

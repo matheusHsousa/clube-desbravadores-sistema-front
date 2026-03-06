@@ -15,7 +15,44 @@ export class PointsService {
     return this.http.get<any>(`${this.base}/${desbravadorId}`).pipe(catchError(() => of(null)));
   }
 
-  adjust(payload: { desbravadorId: number; amount: number; reason?: string; authorId?: number }) {
+  adjust(payload: {
+    desbravadorId: number;
+    amount?: number;
+    presence?: number;
+    pontualidade?: number;
+    uniforme?: number;
+    material?: number;
+    classe?: number;
+    espEquipe?: number;
+    disciplina?: number;
+    textoBiblico?: number;
+    reason?: string;
+    authorId?: number;
+    sundayDate?: string;
+  }) {
     return this.http.post(`${this.base}/adjust`, payload);
+  }
+
+  listTransactions(params: { desbravadorId?: number; sundayDate?: string; unidade?: number }) {
+    const parts: string[] = [];
+    if (params.desbravadorId) parts.push(`desbravadorId=${params.desbravadorId}`);
+    if (params.sundayDate) parts.push(`sundayDate=${encodeURIComponent(params.sundayDate)}`);
+    if (params.unidade) parts.push(`unidade=${params.unidade}`);
+    const qs = parts.length ? `?${parts.join('&')}` : '';
+    return this.http.get<any[]>(`${this.base}/transactions${qs}`);
+  }
+
+  editTransaction(id: number, payload: any) {
+    return this.http.patch(`${this.base}/transaction/${id}`, payload);
+  }
+
+  getByDesbravadorBatch(ids: number[]) {
+    if (!ids || !ids.length) return of({});
+    const qs = `?ids=${ids.join(',')}`;
+    return this.http.get<any>(`${this.base}/batch${qs}`).pipe(catchError(() => of({})));
+  }
+
+  adjustBatch(payloads: any[]) {
+    return this.http.post(`${this.base}/adjust/batch`, payloads);
   }
 }

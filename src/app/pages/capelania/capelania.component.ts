@@ -77,16 +77,16 @@ export class CapelaniaComponent implements OnInit {
     if (!this.desbravadores.length) return;
     this.submitting = true;
     try {
-      const ops: Array<Promise<any>> = [];
+      const payloads: any[] = [];
       for (const d of this.desbravadores) {
         const id = Number(d.id);
         if (this.absentMap[id]) continue;
         const score = Number(this.scoreMap[id] ?? 0);
         if (!score && score !== 0) continue;
         const dateStr = new Date(this.selectedDate as Date).toISOString();
-        ops.push(this.pointsService.adjust({ desbravadorId: id, amount: score, reason: `Capelania - Classe Bíblica (${dateStr})`, authorId: this.currentUser?.id }).toPromise());
+        payloads.push({ desbravadorId: id, amount: score, reason: `Capelania - Classe Bíblica (${dateStr})`, authorId: this.currentUser?.id });
       }
-      await Promise.all(ops);
+      if (payloads.length) await this.pointsService.adjustBatch(payloads).toPromise();
       this.snackBar.open('Notas de Classe Bíblica enviadas com sucesso', 'OK', { duration: 3500 });
     } catch (err) {
       console.error(err);

@@ -1,0 +1,61 @@
+<div style="padding:16px;">
+  <h2>Editar Marcação</h2>
+  <form [formGroup]="editForm">
+    <mat-form-field appearance="outline" style="width:100%"><mat-label>Motivo</mat-label><input matInput formControlName="reason"></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Data (domingo)</mat-label><input matInput [matDatepicker]="editSundayPicker" formControlName="sundayDate" [matDatepickerFilter]="onlySundays"><mat-datepicker-toggle matIconSuffix [for]="editSundayPicker"></mat-datepicker-toggle><mat-datepicker #editSundayPicker></mat-datepicker></mat-form-field>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;">
+      <div>
+        <label style="font-weight:600">Presença</label>
+        <mat-radio-group formControlName="presence">
+          <mat-radio-button *ngFor="let o of getOptions('presence')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Pontualidade</label>
+        <mat-radio-group formControlName="pontualidade">
+          <mat-radio-button *ngFor="let o of getOptions('pontualidade')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Uniforme</label>
+        <mat-radio-group formControlName="uniforme">
+          <mat-radio-button *ngFor="let o of getOptions('uniforme')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Material</label>
+        <mat-radio-group formControlName="material">
+          <mat-radio-button *ngFor="let o of getOptions('material')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Classe</label>
+        <mat-radio-group formControlName="classe">
+          <mat-radio-button *ngFor="let o of getOptions('classe')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Espírito</label>
+        <mat-radio-group formControlName="espEquipe">
+          <mat-radio-button *ngFor="let o of getOptions('espEquipe')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Disciplina</label>
+        <mat-radio-group formControlName="disciplina">
+          <mat-radio-button *ngFor="let o of getOptions('disciplina')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div>
+        <label style="font-weight:600">Texto Bíblico</label>
+        <mat-radio-group formControlName="textoBiblico" [disabled]="true">
+          <mat-radio-button *ngFor="let o of getOptions('textoBiblico')" [value]="o">{{ o }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+      <button mat-button type="button" (click)="cancel()">Cancelar</button>
+      <button mat-raised-button color="primary" type="button" (click)="save()">Salvar</button>
+    </div>
+  </form>
+</div>

@@ -72,7 +72,6 @@ export class DashboardComponent {
   }
 
   goToUnidades() {
-    // checa novamente a role antes de navegar
     if (this.hasRole('CONSELHEIRO')) {
       this.router.navigate(['/cantinho-unidade']);
     }

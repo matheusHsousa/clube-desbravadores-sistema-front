@@ -1,0 +1,44 @@
+<section class="panel" style="margin-top:12px;">
+  <h2>Histórico / Editar Marcações</h2>
+  <mat-card>
+    <mat-card-content>
+      <div class="transactions-filter">
+        <mat-form-field appearance="outline">
+          <mat-label>Desbravador</mat-label>
+          <mat-select [value]="parent.form.controls['desbravadorId'].value" (selectionChange)="parent.form.controls['desbravadorId'].setValue($event.value)">
+            <mat-option *ngFor="let d of desbravadores" [value]="d.id">{{ d.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Data (domingo)</mat-label>
+          <input matInput [matDatepicker]="txSundayPicker" [value]="parent.form.controls['sundayDate'].value" (dateChange)="parent.form.controls['sundayDate'].setValue($event.value)" [matDatepickerFilter]="parent.onlySundays">
+          <mat-datepicker-toggle matIconSuffix [for]="txSundayPicker"></mat-datepicker-toggle>
+          <mat-datepicker #txSundayPicker></mat-datepicker>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="openTransactionsDialog()">Buscar marcações</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="points-table" *ngIf="transactions && transactions.length">
+          <thead>
+            <tr>
+              <th>Desbravador</th>
+              <th>Data</th>
+              <th>Valor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transactions">
+              <td class="name">{{ getDesbravadorName(t) }}</td>
+              <td>{{ t.sundayDate | date:'shortDate' }}</td>
+              <td class="saldo">{{ t.amount }}</td>
+              <td class="actions"><button mat-button (click)="openEditDialog(t)">Editar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="transactions && transactions.length === 0">Nenhuma marcação encontrada.</div>
+    </mat-card-content>
+  </mat-card>
+</section>

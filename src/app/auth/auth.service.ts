@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environments';
+import { ApiCacheService } from '../core/api-cache.service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -20,6 +21,7 @@ export class AuthService {
     private auth: Auth,
     private router: Router,
     private http: HttpClient
+    , private apiCache: ApiCacheService
   ) {
     this.listenAuth();
   }
@@ -94,6 +96,8 @@ export class AuthService {
 
   logout(): Promise<void> {
     return this.auth.signOut().then(() => {
+      // limpar cache de sessão ao efetuar logout
+      try { this.apiCache.clear(); } catch (e) { /* ignore */ }
       this.currentUserSubject.next(null);
       this.router.navigate(['/login']);
     });

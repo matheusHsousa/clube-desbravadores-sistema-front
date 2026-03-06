@@ -1,0 +1,83 @@
+.custom-stepper {
+    margin-top: 12px;
+}
+
+.stepper-headers {
+    align-items: center;
+    padding: 8px 4px;
+    gap: 12px;
+    /* manter em uma única linha e permitir scroll horizontal */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    justify-content: center; /* centraliza os dois headers visíveis */
+    scroll-behavior: smooth; /* animação nativa para scroll */
+    position: relative;
+}
+
+.stepper-headers button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-muted, #6b7280);
+    border-radius: calc(var(--radius-sm,6px));
+    position: relative;
+    transition: color .18s ease, background .18s ease, box-shadow .18s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-width: unset;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+}
+
+.stepper-headers button .step-index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(30,136,229,0.08); /* subtle primary tint */
+    color: var(--color-primary-700, #1e88e5);
+    font-size: 0.82rem;
+    flex: 0 0 30px;
+    box-shadow: none;
+}
+
+.stepper-headers .step-label {
+    display: inline-block;
+    white-space: normal; /* permitir quebra para mostrar nomes maiores */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    color: inherit;
+}
+
+.stepper-headers::-webkit-scrollbar {
+    height: 8px;
+}
+.stepper-headers::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.06);
+    border-radius: 8px;
+}
+
+.stepper-headers button.active {
+    color: var(--color-primary-700, #1e88e5);
+    background: linear-gradient(90deg, rgba(30,136,229,0.06), rgba(30,136,229,0.02));
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.stepper-headers button.active .step-index {
+    background: linear-gradient(90deg, #1e88e5, #1976d2);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(30,136,229,0.12);
+}
+
+.step-panel {
+    padding-top: 12px;
+}
